@@ -1,0 +1,5 @@
+The ".grp" file format is just a collection of a lot of files stored into 1 big one.
+I tried to make the format as simple as possible: The first 12 bytes contains my name, "KenSilverman".
+The next 4 bytes is the number of files that were compacted into the group file.
+Then for each file, there is a 16 byte structure, where the first 12 bytes are the filename, and the last 4 bytes are the file's size.
+The rest of the group file is just the raw data packed one after the other in the same order as the list of files.
