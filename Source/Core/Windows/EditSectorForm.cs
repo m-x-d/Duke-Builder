@@ -340,9 +340,6 @@ namespace mxd.DukeBuilder.Windows
 			// Go for all sectors
 			foreach(Sector s in sectors)
 			{
-				//mxd. We don't want to record every property change
-				s.BeginPropertiesChange();
-				
 				// Floor/ceiling
 				if(props.FloorHeight != VALUE_MISMATCH) s.FloorHeight = props.FloorHeight;
 				if(props.CeilingHeight != VALUE_MISMATCH) s.CeilingHeight = props.CeilingHeight;
@@ -386,9 +383,6 @@ namespace mxd.DukeBuilder.Windows
 				if(props.FloorShade != VALUE_MISMATCH) s.FloorShade = props.FloorShade;
 				if(props.FloorPaletteIndex != VALUE_MISMATCH) s.FloorPaletteIndex = props.FloorPaletteIndex;
 				if(props.FloorSlope != VALUE_MISMATCH) s.FloorSlope = props.FloorSlope;
-
-				//mxd. We want to record every property change again
-				s.EndPropertiesChange();
 			}
 			
 			// Update the used textures

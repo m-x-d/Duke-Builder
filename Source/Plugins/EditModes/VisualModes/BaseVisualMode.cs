@@ -1117,14 +1117,6 @@ namespace mxd.DukeBuilder.EditModes
 			PostAction();
 		}
 
-		/*[BeginAction("toggleupperunpegged")]
-		public void ToggleUpperUnpegged()
-		{
-			PreAction(UndoGroup.None);
-			GetTargetEventReceiver(false).OnToggleUpperUnpegged();
-			PostAction();
-		}*/
-
 		[BeginAction("togglebottomalignment")]
 		public void ToggleBottomAlignment()
 		{

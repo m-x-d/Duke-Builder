@@ -120,7 +120,7 @@ namespace mxd.DukeBuilder.Map
 			// Initialize
 			this.map = map;
 			this.listindex = listindex;
-			this.flags = new Dictionary<string, bool>();
+			this.flags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.owner = -1;
 			this.extra = -1;
 			
@@ -158,7 +158,7 @@ namespace mxd.DukeBuilder.Map
 		// Call this before changing properties
 		protected override void BeforePropsChange()
 		{
-			if(!blockpropchange && map == General.Map.Map) General.Map.UndoRedo.RecPrpThing(this);
+			if(map == General.Map.Map) General.Map.UndoRedo.RecPrpThing(this);
 		}
 		
 		// Serialize / deserialize
@@ -166,7 +166,7 @@ namespace mxd.DukeBuilder.Map
 		{
 			if(!s.IsWriting) BeforePropsChange();
 
-			ReadWrite(s, flags);
+			ReadWrite(s, ref flags);
 
 			s.rwVector3D(ref pos);
 			s.rwInt(ref tileindex);
@@ -196,7 +196,7 @@ namespace mxd.DukeBuilder.Map
 			t.BeforePropsChange();
 			
 			// Copy build properties
-			t.flags = new Dictionary<string, bool>(flags);
+			t.flags = new Dictionary<string, bool>(flags, StringComparer.Ordinal);
 			t.pos = pos;
 			t.tileindex = tileindex;
 			t.shade = shade;
@@ -357,7 +357,7 @@ namespace mxd.DukeBuilder.Map
 		internal void Update(BuildSprite src)
 		{
 			// Apply changes
-			this.flags = new Dictionary<string, bool>(src.Flags);
+			this.flags = new Dictionary<string, bool>(src.Flags, StringComparer.Ordinal);
 			this.tileindex = src.TileIndex;
 			this.shade = src.Shade;
 			this.paletteindex = src.PaletteIndex;
@@ -430,7 +430,7 @@ namespace mxd.DukeBuilder.Map
 		// This returns a copy of the flags dictionary
 		public Dictionary<string, bool> GetFlags()
 		{
-			return new Dictionary<string,bool>(flags);
+			return new Dictionary<string, bool>(flags, StringComparer.Ordinal);
 		}
 
 		// This clears all flags

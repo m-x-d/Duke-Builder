@@ -40,9 +40,6 @@ namespace mxd.DukeBuilder.Map
 		
 		// Sidedefs
 		private LinkedList<Sidedef> sidedefs;
-		
-		// Properties
-		//private int fixedindex;
 
 		// Build Properties
 		private Sidedef firstwall;
@@ -94,21 +91,8 @@ namespace mxd.DukeBuilder.Map
 		private bool floorplaneupdateneeded;
 
 		//mxd. Cached flags
-		//private bool ceilingparallaxed;
 		private bool ceilingsloped;
-		//private bool ceilingswapxy;
-		//private bool ceilingflipx;
-		//private bool ceilingflipy;
-		//private bool ceilingrelativealignment;
-		//private bool ceilingtextureexpansion;
-
-		//private bool floorparallaxed;
 		private bool floorsloped;
-		//private bool floorswapxy;
-		//private bool floorflipx;
-		//private bool floorflipy;
-		//private bool floorrelativealignment;
-		//private bool floortextureexpansion;
 		
 		#endregion
 
@@ -116,11 +100,6 @@ namespace mxd.DukeBuilder.Map
 
 		public MapSet Map { get { return map; } }
 		public ICollection<Sidedef> Sidedefs { get { return sidedefs; } }
-
-		/// <summary>
-		/// An unique index that does not change when other sectors are removed.
-		/// </summary>
-		//public int FixedIndex { get { return fixedindex; } }
 		
 		// Build properties
 		public Sidedef FirstWall
@@ -145,14 +124,14 @@ namespace mxd.DukeBuilder.Map
 		internal Dictionary<string, bool> FloorFlags { get { return floorflags; } }
 
 		public int CeilingTileIndex { get { return ceilingtileindex; } set { BeforePropsChange(); ceilingtileindex = value; General.Map.IsChanged = true; } }
-		public float CeilingSlope { get { return ceilingslope; } set { BeforePropsChange(); ceilingslope = value; ceilingplaneupdateneeded = true; } }
+		public float CeilingSlope { get { return ceilingslope; } set { BeforePropsChange(); ceilingslope = value; ceilingplaneupdateneeded = true; updateneeded = true; } }
 		public int CeilingShade { get { return ceilingshade; } set { BeforePropsChange(); ceilingshade = value; } }
 		public int CeilingPaletteIndex { get { return ceilingpaletteindex; } set { BeforePropsChange(); ceilingpaletteindex = value; } }
 		public int CeilingOffsetX { get { return ceilingoffsetx; } set { BeforePropsChange(); ceilingoffsetx = value; } }
 		public int CeilingOffsetY { get { return ceilingoffsety; } set { BeforePropsChange(); ceilingoffsety = value; } }
 
 		public int FloorTileIndex { get { return floortileindex; } set { BeforePropsChange(); floortileindex = value; General.Map.IsChanged = true; } }
-		public float FloorSlope { get { return floorslope; } set { BeforePropsChange(); floorslope = value; floorplaneupdateneeded = true; } }
+		public float FloorSlope { get { return floorslope; } set { BeforePropsChange(); floorslope = value; floorplaneupdateneeded = true; updateneeded = true; } }
 		public int FloorShade { get { return floorshade; } set { BeforePropsChange(); floorshade = value; updateneeded = true; } }
 		public int FloorPaletteIndex { get { return floorpaletteindex; } set { BeforePropsChange(); floorpaletteindex = value; } }
 		public int FloorOffsetX { get { return flooroffsetx; } set { BeforePropsChange(); flooroffsetx = value; } }
@@ -201,20 +180,19 @@ namespace mxd.DukeBuilder.Map
 		#region ================== Constructor / Disposer
 
 		// Constructor
-		internal Sector(MapSet map, int listindex/*, int index*/)
+		internal Sector(MapSet map, int listindex)
 		{
 			// Initialize
 			this.map = map;
 			this.listindex = listindex;
 			this.sidedefs = new LinkedList<Sidedef>();
-			//this.fixedindex = index;
 			this.updateneeded = true;
 			this.ceilingplaneupdateneeded = true;
 			this.floorplaneupdateneeded = true;
 			this.triangulationneeded = true;
 			this.surfaceentries = new SurfaceEntryCollection();
-			this.floorflags = new Dictionary<string, bool>();
-			this.ceilingflags = new Dictionary<string, bool>();
+			this.floorflags = new Dictionary<string, bool>(StringComparer.Ordinal);
+			this.ceilingflags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.firstwall = null;
 			this.extra = -1;
 
@@ -243,9 +221,6 @@ namespace mxd.DukeBuilder.Map
 				// Remove from main list
 				map.RemoveSector(listindex);
 				
-				// Register the index as free
-				//map.AddSectorIndexHole(fixedindex);
-				
 				// Free surface entry
 				General.Map.CRenderer2D.Surfaces.FreeSurfaces(surfaceentries);
 
@@ -266,7 +241,7 @@ namespace mxd.DukeBuilder.Map
 		// Call this before changing properties
 		protected override void BeforePropsChange()
 		{
-			if(!blockpropchange && map == General.Map.Map) General.Map.UndoRedo.RecPrpSector(this);
+			if(map == General.Map.Map) General.Map.UndoRedo.RecPrpSector(this);
 		}
 
 		// Serialize / deserialize (passive: this doesn't record)
@@ -280,10 +255,8 @@ namespace mxd.DukeBuilder.Map
 				floorplaneupdateneeded = true;
 			}
 
-			//s.rwInt(ref fixedindex);
-			
-			ReadWrite(s, floorflags);
-			ReadWrite(s, ceilingflags);
+			ReadWrite(s, ref floorflags);
+			ReadWrite(s, ref ceilingflags);
 
 			if(s.IsWriting)
 			{
@@ -353,8 +326,8 @@ namespace mxd.DukeBuilder.Map
 			s.ceilingheight = ceilingheight;
 			s.floorheight = floorheight;
 
-			s.ceilingflags = new Dictionary<string, bool>(ceilingflags);
-			s.floorflags = new Dictionary<string, bool>(floorflags);
+			s.ceilingflags = new Dictionary<string, bool>(ceilingflags, StringComparer.Ordinal);
+			s.floorflags = new Dictionary<string, bool>(floorflags, StringComparer.Ordinal);
 
 			s.ceilingtileindex = ceilingtileindex;
 			s.ceilingslope = ceilingslope;
@@ -585,13 +558,14 @@ namespace mxd.DukeBuilder.Map
 			{
 				BeforePropsChange();
 				flags[flagname] = value;
+				updateneeded = true; //mxd. FlipXY flags require surface update
 			}
 		}
 
 		// This returns a copy of the flags dictionary
 		public Dictionary<string, bool> GetFlags(bool floor)
 		{
-			return new Dictionary<string, bool>(floor ? floorflags : ceilingflags);
+			return new Dictionary<string, bool>(floor ? floorflags : ceilingflags, StringComparer.Ordinal);
 		}
 
 		// This clears all flags
@@ -831,8 +805,8 @@ namespace mxd.DukeBuilder.Map
 			this.ceilingheight = src.CeilingHeight;
 			this.floorheight = src.FloorHeight;
 
-			this.ceilingflags = new Dictionary<string, bool>(src.CeilingFlags);
-			this.floorflags = new Dictionary<string, bool>(src.FloorFlags);
+			this.ceilingflags = new Dictionary<string, bool>(src.CeilingFlags, StringComparer.Ordinal);
+			this.floorflags = new Dictionary<string, bool>(src.FloorFlags, StringComparer.Ordinal);
 
 			this.ceilingtileindex = src.CeilingTileIndex;
 			this.ceilingslope = src.CeilingSlope;
@@ -885,8 +859,7 @@ namespace mxd.DukeBuilder.Map
 		//mxd
 		private Plane GetSlopePlane(float slopeangle, int planeheight, bool up)
 		{
-			Vector2D cp = firstwall.Line.GetCenterPoint();
-			Vector3D center = new Vector3D(cp.x, cp.y, planeheight);
+			Vector3D center = new Vector3D(firstwall.Line.GetCenterPoint(), planeheight);
 			float anglexy = (up ? firstwall.Line.Angle - Angle2D.PIHALF : firstwall.Line.Angle + Angle2D.PIHALF);
 			return new Plane(center, anglexy, slopeangle, up);
 		}

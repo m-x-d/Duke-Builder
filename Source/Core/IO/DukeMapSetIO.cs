@@ -247,7 +247,7 @@ namespace mxd.DukeBuilder.IO
 					foreach(BuildWall o in walls)
 					{
 						// Re-connect it to the next one...
-						if(o.NextWallIndex == i)
+						if(o != null && o.NextWallIndex == i)
 						{
 							o.NextWallIndex = w.NextWallIndex;
 							break;

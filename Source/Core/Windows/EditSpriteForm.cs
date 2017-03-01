@@ -325,9 +325,6 @@ namespace mxd.DukeBuilder.Windows
 			// Apply to all sprites...
 			foreach(Thing s in sprites)
 			{
-				//mxd. We don't want to record every property change
-				s.BeginPropertiesChange();
-				
 				// Type
 				if(props.TileIndex != VALUE_MISMATCH) s.TileIndex = props.TileIndex;
 
@@ -371,9 +368,6 @@ namespace mxd.DukeBuilder.Windows
 						case CheckState.Unchecked: s.SetFlag(group.Key, false); break;
 					}
 				}
-
-				//mxd. We want to record every property change again
-				s.EndPropertiesChange();
 
 				// Update settings
 				s.UpdateConfiguration();

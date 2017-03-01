@@ -110,7 +110,7 @@ namespace mxd.DukeBuilder.Map
 			// Initialize
 			this.map = map;
 			this.listindex = listindex;
-			this.flags = new Dictionary<string, bool>();
+			this.flags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.extra = -1;
 			
 			// Attach linedef
@@ -168,7 +168,7 @@ namespace mxd.DukeBuilder.Map
 		// Call this before changing properties
 		protected override void BeforePropsChange()
 		{
-			if(!blockpropchange && map == General.Map.Map) General.Map.UndoRedo.RecPrpSidedef(this);
+			if(map == General.Map.Map) General.Map.UndoRedo.RecPrpSidedef(this);
 		}
 		
 		// Serialize / deserialize (passive: this doesn't record)
@@ -176,7 +176,7 @@ namespace mxd.DukeBuilder.Map
 		{
 			if(!s.IsWriting) BeforePropsChange();
 			
-			ReadWrite(s, flags);
+			ReadWrite(s, ref flags);
 
 			s.rwInt(ref offsetx);
 			s.rwInt(ref offsety);
@@ -198,7 +198,7 @@ namespace mxd.DukeBuilder.Map
 			s.BeforePropsChange();
 			
 			// Copy build properties
-			s.flags = new Dictionary<string, bool>(flags);
+			s.flags = new Dictionary<string, bool>(flags, StringComparer.Ordinal);
 			s.offsetx = offsetx;
 			s.offsety = offsety;
 			s.repeatx = repeatx;
@@ -281,7 +281,7 @@ namespace mxd.DukeBuilder.Map
 		// This returns a copy of the flags dictionary
 		public Dictionary<string, bool> GetFlags()
 		{
-			return new Dictionary<string, bool>(flags);
+			return new Dictionary<string, bool>(flags, StringComparer.Ordinal);
 		}
 
 		// This clears all flags

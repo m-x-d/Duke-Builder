@@ -117,7 +117,7 @@ namespace mxd.DukeBuilder.Map
 		// Call this before changing properties
 		protected override void BeforePropsChange()
 		{
-			if(!blockpropchange && map == General.Map.Map) General.Map.UndoRedo.RecPrpVertex(this);
+			if(map == General.Map.Map) General.Map.UndoRedo.RecPrpVertex(this);
 		}
 
 		// This attaches a linedef and returns the listitem

@@ -41,9 +41,6 @@ namespace mxd.DukeBuilder.Map
 		//mxd. Hashing
 		private static int hashcounter;
 		private readonly int hashcode;
-
-		//mxd. Batch updating
-		protected bool blockpropchange;
 		
 		#endregion
 		
@@ -75,7 +72,7 @@ namespace mxd.DukeBuilder.Map
 
 		#region ================== Methods
 
-		protected static void ReadWrite(IReadWriteStream s, Dictionary<string, bool> flags)
+		protected static void ReadWrite(IReadWriteStream s, ref Dictionary<string, bool> flags)
 		{
 			if(s.IsWriting)
 			{
@@ -91,7 +88,7 @@ namespace mxd.DukeBuilder.Map
 				int c;
 				s.rInt(out c);
 
-				flags = new Dictionary<string, bool>(c);
+				flags = new Dictionary<string, bool>(c, StringComparer.Ordinal);
 				for(int i = 0; i < c; i++)
 				{
 					string t;
@@ -105,18 +102,6 @@ namespace mxd.DukeBuilder.Map
 		
 		// This must implement the call to the undo system to record the change of properties
 		protected abstract void BeforePropsChange();
-
-		//mxd
-		public void BeginPropertiesChange()
-		{
-			BeforePropsChange();
-			blockpropchange = true;
-		}
-
-		public void EndPropertiesChange()
-		{
-			blockpropchange = false;
-		}
 
 		public static int CalculateBrightness(int shade) { return CalculateBrightness(shade, 255); }
 		public static int CalculateBrightness(int shade, byte alpha)

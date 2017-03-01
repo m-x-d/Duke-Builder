@@ -161,7 +161,7 @@ namespace mxd.DukeBuilder.Map
 		// Call this before changing properties
 		protected override void BeforePropsChange()
 		{
-			if(!blockpropchange && map == General.Map.Map) General.Map.UndoRedo.RecPrpLinedef(this);
+			if(map == General.Map.Map) General.Map.UndoRedo.RecPrpLinedef(this);
 		}
 		
 		// Serialize / deserialize (passive: doesn't record)

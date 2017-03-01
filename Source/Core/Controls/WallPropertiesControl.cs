@@ -173,9 +173,6 @@ namespace mxd.DukeBuilder.Controls
 			// Apply to all walls...
 			foreach(Sidedef w in walls)
 			{
-				//mxd. We don't want to record every property change
-				w.BeginPropertiesChange();
-
 				// Flags
 				foreach(KeyValuePair<string, CheckState> group in flagsstate)
 				{
@@ -213,9 +210,6 @@ namespace mxd.DukeBuilder.Controls
 				if(props.HiTag != VALUE_MISMATCH) w.HiTag = props.HiTag;
 				if(props.LoTag != VALUE_MISMATCH) w.LoTag = props.LoTag;
 				if(props.Extra != VALUE_MISMATCH) w.Extra = props.Extra;
-
-				//mxd. We want to record every property change again
-				w.EndPropertiesChange();
 			}
 		}
 

@@ -291,7 +291,7 @@ namespace mxd.DukeBuilder.EditModes
 
 				if(sloped && relativealignment)
 				{
-					int heidiff = (int)(vertices[i].z - zpos);
+					int heidiff = (int)(vertices[i].z - zpos) * -16;
 					
 					// Don't forget the sign, it could be negative with concave sectors
 					if(tey >= 0)

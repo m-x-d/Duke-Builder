@@ -76,8 +76,6 @@ namespace mxd.DukeBuilder.IO
 
 		public void ApplyTo(Sidedef s)
 		{
-			s.BeginPropertiesChange();
-			
 			s.ClearFlags();
 			foreach(var group in Flags)
 				s.SetFlag(group.Key, group.Value);
@@ -94,8 +92,6 @@ namespace mxd.DukeBuilder.IO
 			s.HiTag = HiTag;
 			s.LoTag = LoTag;
 			s.Extra = Extra;
-
-			s.EndPropertiesChange();
 		}
 	}
 
@@ -174,8 +170,6 @@ namespace mxd.DukeBuilder.IO
 
 		public void ApplyTo(Thing s)
 		{
-			s.BeginPropertiesChange();
-			
 			s.Move(new Vector3D(X, Y, Z));
 
 			s.ClearFlags();
@@ -200,8 +194,6 @@ namespace mxd.DukeBuilder.IO
 			s.HiTag = HiTag;
 			s.LoTag = LoTag;
 			s.Extra = Extra;
-
-			s.EndPropertiesChange();
 		}
 	}
 
@@ -283,8 +275,6 @@ namespace mxd.DukeBuilder.IO
 
 		public void ApplyTo(Sector s)
 		{
-			s.BeginPropertiesChange();
-			
 			s.CeilingHeight = CeilingHeight;
 			s.FloorHeight = FloorHeight;
 
@@ -315,8 +305,6 @@ namespace mxd.DukeBuilder.IO
 			s.HiTag = HiTag;
 			s.LoTag = LoTag;
 			s.Extra = Extra;
-
-			s.EndPropertiesChange();
 		}
 	}
 
