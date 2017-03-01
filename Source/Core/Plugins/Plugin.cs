@@ -134,10 +134,8 @@ namespace mxd.DukeBuilder.Plugins
 		// This creates a stream to read a resource or returns null when not found
 		public Stream GetResourceStream(string resourcename)
 		{
-			string[] resnames;
-			
 			// Find a resource
-			resnames = asm.GetManifestResourceNames();
+			string[] resnames = asm.GetManifestResourceNames();
 			foreach(string rn in resnames)
 			{
 				// Found it?

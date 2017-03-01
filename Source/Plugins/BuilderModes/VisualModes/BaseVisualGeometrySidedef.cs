@@ -24,6 +24,7 @@ using mxd.DukeBuilder.Data;
 using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.IO;
 using mxd.DukeBuilder.Map;
+using mxd.DukeBuilder.Rendering;
 using mxd.DukeBuilder.VisualModes;
 
 #endregion
@@ -42,6 +43,8 @@ namespace mxd.DukeBuilder.EditModes
 
 		protected BaseVisualMode mode;
 
+		protected Plane top;
+		protected Plane bottom;
 		protected int setuponloadedimage = -1;
 		
 		// UV dragging
@@ -87,7 +90,7 @@ namespace mxd.DukeBuilder.EditModes
 		public override bool PickFastReject(Vector3D from, Vector3D to, Vector3D dir)
 		{
 			// Check if intersection point is between top and bottom
-			return (pickintersect.z >= Sidedef.Sector.FloorPlane.GetZ(pickintersect)) && (pickintersect.z <= Sidedef.Sector.CeilingPlane.GetZ(pickintersect));
+			return (pickintersect.z >= bottom.GetZ(pickintersect)) && (pickintersect.z <= top.GetZ(pickintersect));
 		}
 
 		// This performs an accurate test for object picking
@@ -97,6 +100,100 @@ namespace mxd.DukeBuilder.EditModes
 			// so we just return the intersection distance here
 			u_ray = pickrayu;
 			return true;
+		}
+
+		// This crops a polygon with a plane and keeps only a certain part of the polygon
+		protected static void CropPoly(ref List<WorldVertex> poly, Plane p, bool keepfront)
+		{
+			if(poly.Count < 1) return;
+
+			const float NEAR_ZERO = 0.01f;
+			float sideswitch = keepfront ? 1 : -1;
+			List<WorldVertex> newp = new List<WorldVertex>(poly.Count);	
+			
+			// First split lines that cross the plane so that we have vertices on the plane where the lines cross
+			WorldVertex wv1 = poly[poly.Count - 1];
+			float side1 = p.Distance(new Vector3D(wv1.x, wv1.y, wv1.z)) * sideswitch;
+			foreach(WorldVertex wv2 in poly)
+			{
+				Vector3D v1 = new Vector3D(wv1.x, wv1.y, wv1.z); //mxd
+				Vector2D uv1 = new Vector2D(wv1.u, wv1.v); //mxd
+
+				Vector3D v2 = new Vector3D(wv2.x, wv2.y, wv2.z); //mxd
+				Vector2D uv2 = new Vector2D(wv2.u, wv2.v); //mxd
+				
+				float side2 = p.Distance(v2) * sideswitch;
+
+				// Front?
+				if(side2 > NEAR_ZERO)
+				{
+					if(side1 < -NEAR_ZERO)
+					{
+						// Split line with plane and insert the vertex
+						float u = 0.0f;
+						p.GetIntersection(v1, v2, ref u);
+						Vector3D v3 = v1 + (v2 - v1) * u;
+						Vector2D uv3 = uv1 + (uv2 - uv1) * u; //mxd
+						newp.Add(new WorldVertex(v3, uv3, wv2.c));
+					}
+
+					newp.Add(wv2);
+				}
+				// Back?
+				else if(side2 < -NEAR_ZERO)
+				{
+					if(side1 > NEAR_ZERO)
+					{
+						// Split line with plane and insert the vertex
+						float u = 0.0f;
+						p.GetIntersection(v1, v2, ref u);
+						Vector3D v3 = v1 + (v2 - v1) * u;
+						Vector2D uv3 = uv1 + (uv2 - uv1) * u; //mxd
+						newp.Add(new WorldVertex(v3, uv3, wv2.c));
+					}
+				}
+				else
+				{
+					// On the plane
+					newp.Add(wv2);
+				}
+
+				// Next
+				wv1 = wv2;
+				side1 = side2;
+			}
+
+			poly = newp;
+		}
+
+		//mxd. Implements calc_ypancoef() from polymer.cpp
+		protected static float CalculateOffsetV(int offsety, ImageData texture, bool correctpanning)
+		{
+			if(offsety == 0) return 0;
+			//if(General.Map.FormatInterface.Version > 9) return offsety / 256f; //TODO: map format 10?..
+			float ypancoef = General.NextPowerOf2(texture.Height);
+
+			if(correctpanning)
+			{
+				int yoffs = (int)Math.Truncate((ypancoef - texture.Height) * (255.0f / ypancoef));
+				if(offsety > 256 - yoffs) offsety -= yoffs;
+			}
+
+			return ypancoef * offsety / (256.0f * texture.Height);
+		}
+
+		//mxd. Find next wall for this wall...
+		protected Sidedef GetNextWall()
+		{
+			var v = (Sidedef.IsFront ? Sidedef.Line.End : Sidedef.Line.Start);
+			foreach(Linedef l in v.Linedefs)
+			{
+				if(l.Front != Sidedef && l.Front != null && l.Front.Sector == Sidedef.Sector) return l.Front;
+				if(l.Back != Sidedef && l.Back != null && l.Back.Sector == Sidedef.Sector) return l.Back;
+			}
+
+			// Should never happen, right?..
+			return null;
 		}
 		
 		#endregion

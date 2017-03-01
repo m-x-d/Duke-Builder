@@ -53,6 +53,7 @@ namespace mxd.DukeBuilder.Rendering
 		private const int FONT_HEIGHT = 0;
 
 		internal const int NUM_VIEW_MODES = 4;
+		internal const float DEFAULT_ZOOM = 0.0625f; //mxd
 		
 		#endregion
 
@@ -491,9 +492,7 @@ namespace mxd.DukeBuilder.Rendering
 			translatex = -offsetx + (windowsize.Width * 0.5f) * scaleinv;
 			translatey = -offsety - (windowsize.Height * 0.5f) * scaleinv;
 			linenormalsize = 10f * scaleinv;
-			vertexsize = (int)(1.7f * scale + 0.5f);
-			if(vertexsize < 0) vertexsize = 0;
-			if(vertexsize > 4) vertexsize = 4;
+			vertexsize = General.Clamp((int)(13.5f * scale + 0.5f), 0, 4); //mxd. 1.7f -> 13.5f
 			Matrix scaling = Matrix.Scaling((1f / windowsize.Width) * 2f, (1f / windowsize.Height) * -2f, 1f);
 			Matrix translate = Matrix.Translation(-(float)windowsize.Width * 0.5f, -(float)windowsize.Height * 0.5f, 0f);
 			graphics.Device.SetTransform(TransformState.View, Matrix.Multiply(translate, scaling));

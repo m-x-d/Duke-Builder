@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.Map;
 
@@ -16,6 +15,7 @@ namespace mxd.DukeBuilder.IO
 		#region ================== Constants
 
 		private const int BUILD_Z_MULTIPLIER = -16;
+		private const float BUILD_ANGLE_MULTIPLIER = 16383.0f;
 
 		#endregion
 
@@ -68,6 +68,8 @@ namespace mxd.DukeBuilder.IO
 		public override string WallFlipYFlag { get { return "256"; } }
 		public override string WallMasked { get { return "16"; } }
 		public override string WallMaskedSolid { get { return "32"; } }
+		public override string WallSemiTransparent { get { return "128"; } }
+		public override string WallTransparent { get { return "512"; } }
 
 		// Sector flags need to be aware of
 		public override string SectorTextureExpansionFlag { get { return "8"; } }
@@ -574,6 +576,22 @@ namespace mxd.DukeBuilder.IO
 				}
 			}
 
+			// Now re-sort, so FirstWall is first for each sector...
+			List<BuildWall> sortedwalls = new List<BuildWall>(wallids.Count);
+			foreach(Sector s in sectorids.Keys)
+			{
+				// First add the FirstWall...
+				Sidedef first = (s.FirstWall ?? General.GetFirst(s.Sidedefs));
+				sortedwalls.Add(buildwallids[wallids[first]]);
+
+				// Add the rest of the walls...
+				foreach(Sidedef side in s.Sidedefs)
+				{
+					if(side == first) continue;
+					sortedwalls.Add(buildwallids[wallids[side]]);
+				}
+			}
+
 			// Write map structures
 			using(BinaryWriter writer = new BinaryWriter(mapdata))
 			{
@@ -598,26 +616,27 @@ namespace mxd.DukeBuilder.IO
 				writer.Write((ushort)sectorids[playerstart.Sector]);
 
 				// Write sectors
-				WriteSectors(writer, sectorids.Keys, wallids);
+				WriteSectors(writer, sectorids.Keys);
 
 				// Write walls
-				WriteWalls(writer, buildwallids.Values);
+				WriteWalls(writer, sortedwalls);
 
 				// Write sprites
 				WriteSprites(writer, map.Things, sectorids);
 			}
 		}
 
-		private static void WriteSectors(BinaryWriter writer, ICollection<Sector> sectors, Dictionary<Sidedef, int> wallids)
+		private static void WriteSectors(BinaryWriter writer, ICollection<Sector> sectors)
 		{
 			// UINT16LE Number of sectors in the map 
 			writer.Write((ushort)sectors.Count);
 
+			int firstwall = 0;
 			foreach(Sector s in sectors)
 			{
-				// INT16LE Index to first wall in sector
-				Sidedef first = (s.FirstWall ?? General.GetFirst(s.Sidedefs));
-				writer.Write((short)wallids[first]);
+				// INT16LE Index to first wall in sector. FirstWall is always written first, so...
+				writer.Write((short)firstwall);
+				firstwall += s.Sidedefs.Count;
 
 				// INT16LE Number of walls in sector
 				writer.Write((short)s.Sidedefs.Count);
@@ -790,16 +809,16 @@ namespace mxd.DukeBuilder.IO
 			return height * BUILD_Z_MULTIPLIER;
 		}
 
-		// Converts build slope angle [-8192 .. 8192] to radians (PIHALF .. -PIHALF)
+		// Converts build slope angle [-8192 .. 8192] to radians (0 .. PI)
 		private static float BuildSlopeToRadians(int anglebuild)
 		{
-			return anglebuild * Angle2D.PI / 16384;
+			return anglebuild * Angle2D.PI / BUILD_ANGLE_MULTIPLIER + Angle2D.PIHALF;
 		}
 
-		// Converts radians (-PIHALF .. PIHALF) to build slope angle [8192 .. -8192]
+		// Converts radians (0 .. PI) to build slope angle [8192 .. -8192]
 		private static short RadiansToBuildSlope(float anglerad)
 		{
-			return (short)Math.Round(anglerad * 16384 / Angle2D.PI);
+			return (short)Math.Round((anglerad - Angle2D.PIHALF) * BUILD_ANGLE_MULTIPLIER / Angle2D.PI);
 		}
 
 		#endregion

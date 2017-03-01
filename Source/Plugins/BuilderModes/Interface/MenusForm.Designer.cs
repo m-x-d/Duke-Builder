@@ -34,7 +34,6 @@ namespace mxd.DukeBuilder.EditModes
 			this.selectdoublesideditem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
 			this.fliplinedefsitem = new System.Windows.Forms.ToolStripMenuItem();
-			this.flipsidedefsitem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.curvelinedefsitem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
@@ -45,17 +44,17 @@ namespace mxd.DukeBuilder.EditModes
 			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
 			this.globalstrip = new System.Windows.Forms.ToolStrip();
 			this.manualstrip = new System.Windows.Forms.ToolStrip();
-			this.separatorsectors1 = new System.Windows.Forms.ToolStripSeparator();
+			this.buttoncopyproperties = new System.Windows.Forms.ToolStripButton();
+			this.buttonpasteproperties = new System.Windows.Forms.ToolStripButton();
+			this.seperatorcopypaste = new System.Windows.Forms.ToolStripSeparator();
 			this.buttonselectionnumbers = new System.Windows.Forms.ToolStripButton();
+			this.separatorsectors1 = new System.Windows.Forms.ToolStripSeparator();
 			this.buttonbrightnessgradient = new System.Windows.Forms.ToolStripButton();
 			this.buttonfloorgradient = new System.Windows.Forms.ToolStripButton();
 			this.buttonceilinggradient = new System.Windows.Forms.ToolStripButton();
 			this.buttonflipselectionh = new System.Windows.Forms.ToolStripButton();
 			this.buttonflipselectionv = new System.Windows.Forms.ToolStripButton();
 			this.buttoncurvelinedefs = new System.Windows.Forms.ToolStripButton();
-			this.buttoncopyproperties = new System.Windows.Forms.ToolStripButton();
-			this.buttonpasteproperties = new System.Windows.Forms.ToolStripButton();
-			this.seperatorcopypaste = new System.Windows.Forms.ToolStripSeparator();
 			this.menustrip.SuspendLayout();
 			this.manualstrip.SuspendLayout();
 			this.SuspendLayout();
@@ -78,20 +77,19 @@ namespace mxd.DukeBuilder.EditModes
             this.selectdoublesideditem,
             this.toolStripMenuItem4,
             this.fliplinedefsitem,
-            this.flipsidedefsitem,
             this.toolStripMenuItem1,
             this.curvelinedefsitem,
             this.toolStripMenuItem3,
             this.splitlinedefsitem});
 			this.linedefsmenu.Name = "linedefsmenu";
-			this.linedefsmenu.Size = new System.Drawing.Size(59, 20);
+			this.linedefsmenu.Size = new System.Drawing.Size(63, 20);
 			this.linedefsmenu.Text = "&Linedefs";
 			this.linedefsmenu.Visible = false;
 			// 
 			// selectsinglesideditem
 			// 
 			this.selectsinglesideditem.Name = "selectsinglesideditem";
-			this.selectsinglesideditem.Size = new System.Drawing.Size(202, 22);
+			this.selectsinglesideditem.Size = new System.Drawing.Size(205, 22);
 			this.selectsinglesideditem.Tag = "selectsinglesided";
 			this.selectsinglesideditem.Text = "Select &Single-sided only";
 			this.selectsinglesideditem.Click += new System.EventHandler(this.InvokeTaggedAction);
@@ -99,7 +97,7 @@ namespace mxd.DukeBuilder.EditModes
 			// selectdoublesideditem
 			// 
 			this.selectdoublesideditem.Name = "selectdoublesideditem";
-			this.selectdoublesideditem.Size = new System.Drawing.Size(202, 22);
+			this.selectdoublesideditem.Size = new System.Drawing.Size(205, 22);
 			this.selectdoublesideditem.Tag = "selectdoublesided";
 			this.selectdoublesideditem.Text = "Select &Double-sided only";
 			this.selectdoublesideditem.Click += new System.EventHandler(this.InvokeTaggedAction);
@@ -107,48 +105,40 @@ namespace mxd.DukeBuilder.EditModes
 			// toolStripMenuItem4
 			// 
 			this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-			this.toolStripMenuItem4.Size = new System.Drawing.Size(199, 6);
+			this.toolStripMenuItem4.Size = new System.Drawing.Size(202, 6);
 			// 
 			// fliplinedefsitem
 			// 
 			this.fliplinedefsitem.Name = "fliplinedefsitem";
-			this.fliplinedefsitem.Size = new System.Drawing.Size(202, 22);
+			this.fliplinedefsitem.Size = new System.Drawing.Size(205, 22);
 			this.fliplinedefsitem.Tag = "fliplinedefs";
-			this.fliplinedefsitem.Text = "&Flip Linedefs";
+			this.fliplinedefsitem.Text = "&Flip Lines";
 			this.fliplinedefsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
-			// 
-			// flipsidedefsitem
-			// 
-			this.flipsidedefsitem.Name = "flipsidedefsitem";
-			this.flipsidedefsitem.Size = new System.Drawing.Size(202, 22);
-			this.flipsidedefsitem.Tag = "flipsidedefs";
-			this.flipsidedefsitem.Text = "F&lip Sidedefs";
-			this.flipsidedefsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
 			// 
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-			this.toolStripMenuItem1.Size = new System.Drawing.Size(199, 6);
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(202, 6);
 			// 
 			// curvelinedefsitem
 			// 
 			this.curvelinedefsitem.Name = "curvelinedefsitem";
-			this.curvelinedefsitem.Size = new System.Drawing.Size(202, 22);
+			this.curvelinedefsitem.Size = new System.Drawing.Size(205, 22);
 			this.curvelinedefsitem.Tag = "curvelinesmode";
-			this.curvelinedefsitem.Text = "&Curve Linedefs...";
+			this.curvelinedefsitem.Text = "&Curve Lines...";
 			this.curvelinedefsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
 			// 
 			// toolStripMenuItem3
 			// 
 			this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-			this.toolStripMenuItem3.Size = new System.Drawing.Size(199, 6);
+			this.toolStripMenuItem3.Size = new System.Drawing.Size(202, 6);
 			// 
 			// splitlinedefsitem
 			// 
 			this.splitlinedefsitem.Name = "splitlinedefsitem";
-			this.splitlinedefsitem.Size = new System.Drawing.Size(202, 22);
+			this.splitlinedefsitem.Size = new System.Drawing.Size(205, 22);
 			this.splitlinedefsitem.Tag = "splitlinedefs";
-			this.splitlinedefsitem.Text = "S&plit Linedefs";
+			this.splitlinedefsitem.Text = "S&plit Lines";
 			this.splitlinedefsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
 			// 
 			// sectorsmenu
@@ -158,14 +148,14 @@ namespace mxd.DukeBuilder.EditModes
             this.mergesectorsitem,
             this.toolStripMenuItem2});
 			this.sectorsmenu.Name = "sectorsmenu";
-			this.sectorsmenu.Size = new System.Drawing.Size(55, 20);
+			this.sectorsmenu.Size = new System.Drawing.Size(57, 20);
 			this.sectorsmenu.Text = "&Sectors";
 			this.sectorsmenu.Visible = false;
 			// 
 			// joinsectorsitem
 			// 
 			this.joinsectorsitem.Name = "joinsectorsitem";
-			this.joinsectorsitem.Size = new System.Drawing.Size(154, 22);
+			this.joinsectorsitem.Size = new System.Drawing.Size(149, 22);
 			this.joinsectorsitem.Tag = "joinsectors";
 			this.joinsectorsitem.Text = "&Join Sectors";
 			this.joinsectorsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
@@ -173,7 +163,7 @@ namespace mxd.DukeBuilder.EditModes
 			// mergesectorsitem
 			// 
 			this.mergesectorsitem.Name = "mergesectorsitem";
-			this.mergesectorsitem.Size = new System.Drawing.Size(154, 22);
+			this.mergesectorsitem.Size = new System.Drawing.Size(149, 22);
 			this.mergesectorsitem.Tag = "mergesectors";
 			this.mergesectorsitem.Text = "&Merge Sectors";
 			this.mergesectorsitem.Click += new System.EventHandler(this.InvokeTaggedAction);
@@ -181,7 +171,7 @@ namespace mxd.DukeBuilder.EditModes
 			// toolStripMenuItem2
 			// 
 			this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-			this.toolStripMenuItem2.Size = new System.Drawing.Size(151, 6);
+			this.toolStripMenuItem2.Size = new System.Drawing.Size(146, 6);
 			// 
 			// globalstrip
 			// 
@@ -211,11 +201,33 @@ namespace mxd.DukeBuilder.EditModes
 			this.manualstrip.TabIndex = 2;
 			this.manualstrip.Text = "toolStrip1";
 			// 
-			// separatorsectors1
+			// buttoncopyproperties
 			// 
-			this.separatorsectors1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.separatorsectors1.Name = "separatorsectors1";
-			this.separatorsectors1.Size = new System.Drawing.Size(6, 25);
+			this.buttoncopyproperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.buttoncopyproperties.Image = global::mxd.DukeBuilder.EditModes.Properties.Resources.CopyProperties;
+			this.buttoncopyproperties.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttoncopyproperties.Name = "buttoncopyproperties";
+			this.buttoncopyproperties.Size = new System.Drawing.Size(23, 22);
+			this.buttoncopyproperties.Tag = "classiccopyproperties";
+			this.buttoncopyproperties.Text = "Copy Properties";
+			this.buttoncopyproperties.Click += new System.EventHandler(this.InvokeTaggedAction);
+			// 
+			// buttonpasteproperties
+			// 
+			this.buttonpasteproperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.buttonpasteproperties.Image = global::mxd.DukeBuilder.EditModes.Properties.Resources.PasteProperties;
+			this.buttonpasteproperties.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.buttonpasteproperties.Name = "buttonpasteproperties";
+			this.buttonpasteproperties.Size = new System.Drawing.Size(23, 22);
+			this.buttonpasteproperties.Tag = "classicpasteproperties";
+			this.buttonpasteproperties.Text = "Paste Properties";
+			this.buttonpasteproperties.Click += new System.EventHandler(this.InvokeTaggedAction);
+			// 
+			// seperatorcopypaste
+			// 
+			this.seperatorcopypaste.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			this.seperatorcopypaste.Name = "seperatorcopypaste";
+			this.seperatorcopypaste.Size = new System.Drawing.Size(6, 25);
 			// 
 			// buttonselectionnumbers
 			// 
@@ -227,6 +239,12 @@ namespace mxd.DukeBuilder.EditModes
 			this.buttonselectionnumbers.Size = new System.Drawing.Size(23, 22);
 			this.buttonselectionnumbers.Text = "View Selection Numbering";
 			this.buttonselectionnumbers.Click += new System.EventHandler(this.buttonselectionnumbers_Click);
+			// 
+			// separatorsectors1
+			// 
+			this.separatorsectors1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+			this.separatorsectors1.Name = "separatorsectors1";
+			this.separatorsectors1.Size = new System.Drawing.Size(6, 25);
 			// 
 			// buttonbrightnessgradient
 			// 
@@ -295,34 +313,6 @@ namespace mxd.DukeBuilder.EditModes
 			this.buttoncurvelinedefs.Text = "Curve Linedefs";
 			this.buttoncurvelinedefs.Click += new System.EventHandler(this.InvokeTaggedAction);
 			// 
-			// buttoncopyproperties
-			// 
-			this.buttoncopyproperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.buttoncopyproperties.Image = global::mxd.DukeBuilder.EditModes.Properties.Resources.CopyProperties;
-			this.buttoncopyproperties.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttoncopyproperties.Name = "buttoncopyproperties";
-			this.buttoncopyproperties.Size = new System.Drawing.Size(23, 22);
-			this.buttoncopyproperties.Tag = "classiccopyproperties";
-			this.buttoncopyproperties.Text = "Copy Properties";
-			this.buttoncopyproperties.Click += new System.EventHandler(this.InvokeTaggedAction);
-			// 
-			// buttonpasteproperties
-			// 
-			this.buttonpasteproperties.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.buttonpasteproperties.Image = global::mxd.DukeBuilder.EditModes.Properties.Resources.PasteProperties;
-			this.buttonpasteproperties.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.buttonpasteproperties.Name = "buttonpasteproperties";
-			this.buttonpasteproperties.Size = new System.Drawing.Size(23, 22);
-			this.buttonpasteproperties.Tag = "classicpasteproperties";
-			this.buttonpasteproperties.Text = "Paste Properties";
-			this.buttonpasteproperties.Click += new System.EventHandler(this.InvokeTaggedAction);
-			// 
-			// seperatorcopypaste
-			// 
-			this.seperatorcopypaste.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.seperatorcopypaste.Name = "seperatorcopypaste";
-			this.seperatorcopypaste.Size = new System.Drawing.Size(6, 25);
-			// 
 			// MenusForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -355,7 +345,6 @@ namespace mxd.DukeBuilder.EditModes
 		private System.Windows.Forms.ToolStripMenuItem linedefsmenu;
 		private System.Windows.Forms.ToolStripMenuItem sectorsmenu;
 		private System.Windows.Forms.ToolStripMenuItem fliplinedefsitem;
-		private System.Windows.Forms.ToolStripMenuItem flipsidedefsitem;
 		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem curvelinedefsitem;
 		private System.Windows.Forms.ToolStripMenuItem joinsectorsitem;

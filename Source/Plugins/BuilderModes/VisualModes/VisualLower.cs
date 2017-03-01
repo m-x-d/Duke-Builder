@@ -16,6 +16,8 @@
 
 #region ================== Namespaces
 
+using System;
+using System.Collections.Generic;
 using mxd.DukeBuilder.Data;
 using mxd.DukeBuilder.Map;
 using mxd.DukeBuilder.Geometry;
@@ -31,29 +33,47 @@ namespace mxd.DukeBuilder.EditModes
 		#region ================== Constructor / Setup
 
 		// Constructor
-		public VisualLower(BaseVisualMode mode, VisualSector vs, Sidedef s) : base(mode, vs, s)
-		{
-			// We have no destructor
-			//GC.SuppressFinalize(this);
-		}
+		public VisualLower(BaseVisualMode mode, VisualSector vs, Sidedef s) : base(mode, vs, s) { }
 
 		// This builds the geometry. Returns false when no geometry created.
 		public override bool Setup()
 		{
-			int brightness = Sidedef.CalculateBrightness(Sidedef.Shade); // mode.CalculateBrightness(Sidedef.Sector.Brightness);
+			Vector2D vl, vr;
 
-			// Calculate size of this wall part
-			float geotop = Sidedef.Other.Sector.FloorHeight;
-			float geobottom = Sidedef.Sector.FloorHeight;
-			float geoheight = geotop - geobottom;
-			if(geoheight > 0.001f)
+			// Left and right vertices for this sidedef
+			if(Sidedef.IsFront)
 			{
-				Vector2D t1 = new Vector2D();
-				Vector2D t2 = new Vector2D();
+				vl = new Vector2D(Sidedef.Line.Start.Position);
+				vr = new Vector2D(Sidedef.Line.End.Position);
+			}
+			else
+			{
+				vl = new Vector2D(Sidedef.Line.End.Position);
+				vr = new Vector2D(Sidedef.Line.Start.Position);
+			}
+
+			// Keep top and bottom planes for intersection testing
+			//mxd. Our sector's ceiling can be lower than the other sector's floor!
+			Sector s = Sidedef.Sector;
+			Sector os = Sidedef.Other.Sector;
+			top = ((s.CeilingPlane.GetZ(vl) < os.FloorPlane.GetZ(vl) && s.CeilingPlane.GetZ(vr) < os.FloorPlane.GetZ(vr)) ? s.CeilingPlane : os.FloorPlane);
+			bottom = Sidedef.Sector.FloorPlane;
+
+			// Get ceiling and floor heights
+			float cl = top.GetZ(vl);
+			float cr = top.GetZ(vr);
+			float fl = bottom.GetZ(vl);
+			float fr = bottom.GetZ(vr);
+
+			// Anything to see?
+			if(cl > fl || cr > fr)
+			{
+				//INFO: used refwall props: picnum, palette, shade, xpanning, ypanning
+				var refwall = (Sidedef.SwapBottomImage ? GetNextWall() : Sidedef);
+				int brightness = MapElement.CalculateBrightness(refwall.Shade);
 
 				// Texture given?
-				int tileindex = (Sidedef.SwapBottomImage ? Sidedef.MaskedTileIndex : Sidedef.TileIndex);
-				Texture = General.Map.Data.GetImageData(tileindex);
+				Texture = General.Map.Data.GetImageData(refwall.TileIndex);
 				if(Texture is UnknownImage)
 				{
 					// Use missing texture
@@ -62,97 +82,66 @@ namespace mxd.DukeBuilder.EditModes
 				}
 				else if(!Texture.IsImageLoaded)
 				{
-					setuponloadedimage = tileindex;
+					setuponloadedimage = Sidedef.TileIndex;
 				}
 
-				/*if((Sidedef.LowTexture.Length > 0) && (Sidedef.LowTexture[0] != '-'))
+				// Create initial polygon, which is just a quad between floor and ceiling
+				var poly = new List<WorldVertex>
+	                       {
+		                       new WorldVertex(vl.x, vl.y, fl, brightness, 0, 0), 
+							   new WorldVertex(vl.x, vl.y, cl, brightness, 0, 0), 
+							   new WorldVertex(vr.x, vr.y, cr, brightness, 0, 0), 
+							   new WorldVertex(vr.x, vr.y, fr, brightness, 0, 0)
+	                       };
+
+				//mxd. Set UV coords the Build way...
+				int xref = (!Sidedef.ImageFlipX ? 1 : 0);
+				int xrefinv = 1 - xref;
+				int yref = (!refwall.AlignImageToBottom ? Sidedef.Other.Sector.FloorHeight : Sidedef.Sector.CeilingHeight);
+				float ypancoef = CalculateOffsetV(refwall.OffsetY, Texture, !refwall.AlignImageToBottom);
+				float scaledtexrepeaty = ((Texture.Height * 128f) / Sidedef.RepeatY);
+				
+				// (!(wal->cstat & 2) && (wal->cstat & 256)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 256))
+				bool flipy = (!Sidedef.SwapBottomImage && Sidedef.ImageFlipY) || (Sidedef.SwapBottomImage && refwall.ImageFlipY);
+
+				for(int i = 0; i < poly.Count; i++)
 				{
-					// Load texture
-					base.Texture = General.Map.Data.GetImageData(tileindex);
-					if(base.Texture == null)
+					var p = poly[i];
+					float dist = ((i == 2 || i == 3) ? xref : xrefinv);
+
+					p.u = ((dist * 8.0f * Sidedef.RepeatX) + refwall.OffsetX) / Texture.Width;
+					p.v = ((yref + (-p.z)) / scaledtexrepeaty) - ypancoef;
+					if(flipy) p.v *= -1;
+
+					poly[i] = p;
+				}
+
+				// Cut off the part above the other floor
+				CropPoly(ref poly, top, false);
+
+				if(poly.Count > 2)
+				{
+					// Now we create triangles from the polygon. The polygon is convex and clockwise, so this is a piece of cake.
+					List<WorldVertex> verts = new List<WorldVertex>(3);
+					for(int k = 1; k < (poly.Count - 1); k++)
 					{
-						base.Texture = General.Map.Data.MissingTexture3D;
-						setuponloadedtexture = tileindex;
+						verts.Add(poly[0]);
+						verts.Add(poly[k]);
+						verts.Add(poly[k + 1]);
 					}
-					else
-					{
-						if(!base.Texture.IsImageLoaded)
-							setuponloadedtexture = tileindex;
-					}
+
+#if DEBUG
+					//mxd. We should have either 3 or 6 verts, right?
+					if(verts.Count != 3 && verts.Count != 6) throw new NotImplementedException("Unexpected number of vertices!");
+#endif
+
+					// Apply vertices
+					base.SetVertices(verts);
+					return true;
 				}
-				else
-				{
-					// Use missing texture
-					base.Texture = General.Map.Data.MissingTexture3D;
-					setuponloadedtexture = 0;
-				}*/
-
-				// Get texture scaled size
-				Vector2D tsz = new Vector2D(base.Texture.Width, base.Texture.Height);
-				
-				// Determine texture coordinates
-				// See http://doom.wikia.com/wiki/Texture_alignment
-				// We just use pixels for coordinates for now
-				if(Sidedef.IsFlagSet(General.Map.FormatInterface.WallAlignImageToBottomFlag))
-				{
-					// When lower unpegged is set, the lower texture is bound to the bottom
-					t1.y = Sidedef.Sector.CeilingHeight - geotop;
-				}
-				t2.x = t1.x + Sidedef.Line.Length;
-				t2.y = t1.y + geoheight;
-
-				// Apply texture offset
-				/*if(General.Map.Config.ScaledTextureOffsets && !base.Texture.WorldPanning)
-				{
-					t1 += new Vector2D(Sidedef.OffsetX * base.Texture.Scale.x, Sidedef.OffsetY * base.Texture.Scale.y);
-					t2 += new Vector2D(Sidedef.OffsetX * base.Texture.Scale.x, Sidedef.OffsetY * base.Texture.Scale.y);
-				}
-				else
-				{*/
-					t1 += new Vector2D(Sidedef.OffsetX, Sidedef.OffsetY);
-					t2 += new Vector2D(Sidedef.OffsetX, Sidedef.OffsetY);
-				//}
-
-				//TODO: RepeatXY
-
-				// Transform pixel coordinates to texture coordinates
-				t1 /= tsz;
-				t2 /= tsz;
-
-				// Get world coordinates for geometry
-				Vector2D v1, v2;
-				if(Sidedef.IsFront)
-				{
-					v1 = Sidedef.Line.Start.Position;
-					v2 = Sidedef.Line.End.Position;
-				}
-				else
-				{
-					v1 = Sidedef.Line.End.Position;
-					v2 = Sidedef.Line.Start.Position;
-				}
-
-				// Make vertices
-				WorldVertex[] verts = new WorldVertex[6];
-				verts[0] = new WorldVertex(v1.x, v1.y, geobottom, brightness, t1.x, t2.y);
-				verts[1] = new WorldVertex(v1.x, v1.y, geotop, brightness, t1.x, t1.y);
-				verts[2] = new WorldVertex(v2.x, v2.y, geotop, brightness, t2.x, t1.y);
-				verts[3] = verts[0];
-				verts[4] = verts[2];
-				verts[5] = new WorldVertex(v2.x, v2.y, geobottom, brightness, t2.x, t2.y);
-				
-				// Keep properties
-				//base.top = geotop;
-				//base.bottom = geobottom;
-				
-				// Apply vertices
-				base.SetVertices(verts);
-				return true;
 			}
 
 			// No geometry for invisible wall
-			//base.top = geotop;
-			//base.bottom = geobottom;
 			base.SetVertices(new WorldVertex[0]);
 			return false;
 		}
@@ -164,16 +153,25 @@ namespace mxd.DukeBuilder.EditModes
 		// Return texture name
 		public override int GetImageIndex()
 		{
-			return (Sidedef.SwapBottomImage ? Sidedef.MaskedTileIndex : this.Sidedef.TileIndex);
+			return (Sidedef.SwapBottomImage ? GetNextWall().TileIndex : Sidedef.TileIndex);
 		}
 
 		// This changes the texture
 		protected override void SetTexture(int tileindex)
 		{
-			if(Sidedef.SwapBottomImage) 
-				Sidedef.MaskedTileIndex = tileindex;
+			if(Sidedef.SwapBottomImage)
+			{
+				var nextwall = GetNextWall();
+				nextwall.TileIndex = tileindex;
+				foreach(var geo in mode.GetVisualSector(nextwall.Sector).GetSidedefGeometry(nextwall))
+				{
+					((BaseVisualGeometrySidedef)geo).Setup();
+				}
+			}
 			else
+			{
 				Sidedef.TileIndex = tileindex;
+			}
 
 			General.Map.Data.UpdateUsedImages();
 			this.Setup();

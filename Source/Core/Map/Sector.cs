@@ -90,6 +90,9 @@ namespace mxd.DukeBuilder.Map
 		private Plane ceilingplane;
 		private Plane floorplane;
 
+		private bool ceilingplaneupdateneeded;
+		private bool floorplaneupdateneeded;
+
 		//mxd. Cached flags
 		//private bool ceilingparallaxed;
 		private bool ceilingsloped;
@@ -120,22 +123,36 @@ namespace mxd.DukeBuilder.Map
 		//public int FixedIndex { get { return fixedindex; } }
 		
 		// Build properties
-		public Sidedef FirstWall { get { return firstwall; } set { BeforePropsChange(); firstwall = value; updateneeded = true; General.Map.IsChanged = true; UpdateFloorPlane(); UpdateCeilingPlane(); } }
-		public int CeilingHeight { get { return ceilingheight; } set { BeforePropsChange(); ceilingheight = value; UpdateCeilingPlane(); } }
-		public int FloorHeight { get { return floorheight; } set { BeforePropsChange(); floorheight = value; UpdateFloorPlane(); } }
+		public Sidedef FirstWall
+		{ 
+			get { return firstwall; }
+			set
+			{
+				BeforePropsChange();
+
+				firstwall = value;
+				updateneeded = true;
+				ceilingplaneupdateneeded = true;
+				floorplaneupdateneeded = true;
+				General.Map.IsChanged = true; 
+			} 
+		}
+
+		public int CeilingHeight { get { return ceilingheight; } set { BeforePropsChange(); ceilingheight = value; ceilingplaneupdateneeded = true; } }
+		public int FloorHeight { get { return floorheight; } set { BeforePropsChange(); floorheight = value; floorplaneupdateneeded = true; } }
 
 		internal Dictionary<string, bool> CeilingFlags { get { return ceilingflags; } }
 		internal Dictionary<string, bool> FloorFlags { get { return floorflags; } }
 
 		public int CeilingTileIndex { get { return ceilingtileindex; } set { BeforePropsChange(); ceilingtileindex = value; General.Map.IsChanged = true; } }
-		public float CeilingSlope { get { return ceilingslope; } set { BeforePropsChange(); ceilingslope = value; UpdateCeilingPlane(); } }
+		public float CeilingSlope { get { return ceilingslope; } set { BeforePropsChange(); ceilingslope = value; ceilingplaneupdateneeded = true; } }
 		public int CeilingShade { get { return ceilingshade; } set { BeforePropsChange(); ceilingshade = value; } }
 		public int CeilingPaletteIndex { get { return ceilingpaletteindex; } set { BeforePropsChange(); ceilingpaletteindex = value; } }
 		public int CeilingOffsetX { get { return ceilingoffsetx; } set { BeforePropsChange(); ceilingoffsetx = value; } }
 		public int CeilingOffsetY { get { return ceilingoffsety; } set { BeforePropsChange(); ceilingoffsety = value; } }
 
 		public int FloorTileIndex { get { return floortileindex; } set { BeforePropsChange(); floortileindex = value; General.Map.IsChanged = true; } }
-		public float FloorSlope { get { return floorslope; } set { BeforePropsChange(); floorslope = value; UpdateFloorPlane(); } }
+		public float FloorSlope { get { return floorslope; } set { BeforePropsChange(); floorslope = value; floorplaneupdateneeded = true; } }
 		public int FloorShade { get { return floorshade; } set { BeforePropsChange(); floorshade = value; updateneeded = true; } }
 		public int FloorPaletteIndex { get { return floorpaletteindex; } set { BeforePropsChange(); floorpaletteindex = value; } }
 		public int FloorOffsetX { get { return flooroffsetx; } set { BeforePropsChange(); flooroffsetx = value; } }
@@ -159,8 +176,8 @@ namespace mxd.DukeBuilder.Map
 		public LabelPositionInfo Label { get { return label; } }
 
 		//mxd. Planes
-		public Plane CeilingPlane { get { return ceilingplane; } }
-		public Plane FloorPlane { get { return floorplane; } }
+		public Plane CeilingPlane { get { UpdateCeilingPlane(); return ceilingplane; } }
+		public Plane FloorPlane { get { UpdateFloorPlane(); return floorplane; } }
 
 		//mxd. Cached flags
 		public bool CeilingParallaxed { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorParallaxedFlag); } }
@@ -192,6 +209,8 @@ namespace mxd.DukeBuilder.Map
 			this.sidedefs = new LinkedList<Sidedef>();
 			//this.fixedindex = index;
 			this.updateneeded = true;
+			this.ceilingplaneupdateneeded = true;
+			this.floorplaneupdateneeded = true;
 			this.triangulationneeded = true;
 			this.surfaceentries = new SurfaceEntryCollection();
 			this.floorflags = new Dictionary<string, bool>();
@@ -257,6 +276,8 @@ namespace mxd.DukeBuilder.Map
 			{
 				BeforePropsChange();
 				updateneeded = true;
+				ceilingplaneupdateneeded = true;
+				floorplaneupdateneeded = true;
 			}
 
 			//s.rwInt(ref fixedindex);
@@ -319,6 +340,8 @@ namespace mxd.DukeBuilder.Map
 			triangles.PostDeserialize(map);
 			updateneeded = true;
 			triangulationneeded = true;
+			ceilingplaneupdateneeded = true;
+			floorplaneupdateneeded = true;
 		}
 		
 		// This copies all properties to another sector
@@ -355,6 +378,8 @@ namespace mxd.DukeBuilder.Map
 
 			// Copy internal properties
 			s.updateneeded = true;
+			s.ceilingplaneupdateneeded = true;
+			s.floorplaneupdateneeded = true;
 			base.CopyPropertiesTo(s);
 		}
 
@@ -366,6 +391,8 @@ namespace mxd.DukeBuilder.Map
 			
 			updateneeded = true;
 			triangulationneeded = true;
+			ceilingplaneupdateneeded = true;
+			floorplaneupdateneeded = true;
 			return sidedefs.AddLast(sd);
 		}
 
@@ -377,6 +404,8 @@ namespace mxd.DukeBuilder.Map
 			{
 				// Remove sidedef
 				updateneeded = true;
+				ceilingplaneupdateneeded = true;
+				floorplaneupdateneeded = true;
 				triangulationneeded = true;
 				sidedefs.Remove(l);
 
@@ -765,6 +794,12 @@ namespace mxd.DukeBuilder.Map
 		}
 
 		//mxd
+		public bool CheckFlag(string flagname, bool floor)
+		{
+			return floor ? CheckFloorFlag(flagname) : CheckCeilingFlag(flagname);
+		}
+
+		//mxd
 		private bool CheckFloorFlag(string flagname)
 		{
 			return (!string.IsNullOrEmpty(flagname) && floorflags.ContainsKey(flagname) && floorflags[flagname]);
@@ -787,7 +822,6 @@ namespace mxd.DukeBuilder.Map
 		#region ================== Changes
 
 		// This updates all properties
-		//public void Update(int hfloor, int hceil, string tfloor, string tceil, int effect, int tag, int brightness)
 		internal void Update(BuildSector src)
 		{
 			BeforePropsChange();
@@ -821,21 +855,31 @@ namespace mxd.DukeBuilder.Map
 			this.extra = src.Extra;
 
 			updateneeded = true;
+			ceilingplaneupdateneeded = true;
+			floorplaneupdateneeded = true;
 			General.Map.IsChanged = true;
 		}
 
 		//mxd
 		private void UpdateCeilingPlane()
 		{
-			ceilingsloped = (CheckCeilingFlag(General.Map.FormatInterface.SectorSlopeFlag) && ceilingslope != 0);
-			ceilingplane = (ceilingsloped ? GetSlopePlane(ceilingslope, ceilingheight, false) : new Plane(new Vector3D(0, 0, -1), ceilingheight));
+			if(ceilingplaneupdateneeded)
+			{
+				ceilingsloped = (CheckCeilingFlag(General.Map.FormatInterface.SectorSlopeFlag) && ceilingslope != 0);
+				ceilingplane = (ceilingsloped ? GetSlopePlane(ceilingslope, ceilingheight, false) : new Plane(new Vector3D(0, 0, -1), ceilingheight));
+				ceilingplaneupdateneeded = false;
+			}
 		}
 
 		//mxd
 		private void UpdateFloorPlane()
 		{
-			floorsloped = (CheckFloorFlag(General.Map.FormatInterface.SectorSlopeFlag) && floorslope != 0);
-			floorplane = (floorsloped ? GetSlopePlane(floorslope, floorheight, true) : new Plane(new Vector3D(0, 0, 1), -floorheight));
+			if(floorplaneupdateneeded)
+			{
+				floorsloped = (CheckFloorFlag(General.Map.FormatInterface.SectorSlopeFlag) && floorslope != 0);
+				floorplane = (floorsloped ? GetSlopePlane(floorslope, floorheight, true) : new Plane(new Vector3D(0, 0, 1), -floorheight));
+				floorplaneupdateneeded = false;
+			}
 		}
 
 		//mxd
@@ -843,30 +887,9 @@ namespace mxd.DukeBuilder.Map
 		{
 			Vector2D cp = firstwall.Line.GetCenterPoint();
 			Vector3D center = new Vector3D(cp.x, cp.y, planeheight);
-			return new Plane(center, firstwall.IsFront ? firstwall.Line.Angle : -firstwall.Line.Angle, slopeangle, up);
+			float anglexy = (up ? firstwall.Line.Angle - Angle2D.PIHALF : firstwall.Line.Angle + Angle2D.PIHALF);
+			return new Plane(center, anglexy, slopeangle, up);
 		}
-
-		// This sets texture
-		/*public void SetFloorTexture(string name)
-		{
-			BeforePropsChange();
-			
-			floortexname = name;
-			longfloortexname = Lump.MakeLongName(name);
-			updateneeded = true;
-			General.Map.IsChanged = true;
-		}*/
-
-		// This sets texture
-		/*public void SetCeilTexture(string name)
-		{
-			BeforePropsChange();
-			
-			ceiltexname = name;
-			longceiltexname = Lump.MakeLongName(name);
-			updateneeded = true;
-			General.Map.IsChanged = true;
-		}*/
 		
 		#endregion
 	}

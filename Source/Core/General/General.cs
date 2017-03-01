@@ -30,6 +30,7 @@ using Microsoft.Win32;
 using mxd.DukeBuilder.Actions;
 using mxd.DukeBuilder.Config;
 using mxd.DukeBuilder.Editing;
+using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.IO;
 using mxd.DukeBuilder.Map;
 using mxd.DukeBuilder.Plugins;
@@ -616,11 +617,7 @@ namespace mxd.DukeBuilder
 				foreach(ConfigurationInfo ci in configs) ci.SaveSettings();
 				
 				// Save settings configuration
-				//if(!General.NoSettings)
-				//{
-					WriteLogLine("Saving program configuration...");
-					settings.Save(Path.Combine(settingspath, SETTINGS_FILE));
-				//}
+				settings.Save(Path.Combine(settingspath, SETTINGS_FILE));
 				
 				// Clean up
 				if(map != null) map.Dispose(); map = null;
@@ -1169,11 +1166,19 @@ namespace mxd.DukeBuilder
 		}
 
 		//mxd. This wraps an angle in degrees between 0 and 359
-		public static int WrapAngle(int angle)
+		public static int WrapAngle(int angledeg)
 		{
-			angle %= 360;
-			if(angle < 0) angle += 360;
-			return angle;
+			angledeg %= 360;
+			if(angledeg < 0) angledeg += 360;
+			return angledeg;
+		}
+
+		//mxd. This wraps an angle in radians between 0 and PI2
+		public static float WrapAngle(float anglerad)
+		{
+			anglerad %= Angle2D.PI2;
+			if(anglerad < 0) anglerad += Angle2D.PI2;
+			return anglerad;
 		}
 		
 		// This returns an element from a collection by index

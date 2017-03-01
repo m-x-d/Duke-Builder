@@ -361,7 +361,7 @@ namespace mxd.DukeBuilder.Editing
 		public void SetDefaultZoom()
 		{
 			// View middle of map at 50% zoom
-			renderer2d.ScaleView(0.5f);
+			renderer2d.ScaleView(Renderer2D.DEFAULT_ZOOM); //0.5f
 			renderer2d.PositionView(0.0f, 0.0f);
 			this.OnViewChanged();
 			General.MainWindow.RedrawDisplay();

@@ -89,9 +89,6 @@ namespace mxd.DukeBuilder.Controls
 		private void ImageSelectorControl_Layout(object sender, LayoutEventArgs e)
 		{
 			ImageSelectorControl_Resize(sender, EventArgs.Empty);
-
-			//dbg
-			DebugConsole.WriteLine(this.Name + " size: " + preview.Size);
 		}
 		
 		// Image clicked
@@ -110,6 +107,7 @@ namespace mxd.DukeBuilder.Controls
 		private void name_TextChanged(object sender, EventArgs e)
 		{
 			updatetimer.Stop();
+			currenttileindex = -1; //mxd
 			if(string.IsNullOrEmpty(name.Text))
 			{
 				// Only possible when showing multiple images, right?

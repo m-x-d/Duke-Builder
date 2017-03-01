@@ -809,13 +809,13 @@ namespace mxd.DukeBuilder.EditModes
 				// Make undo
 				if(selected.Count > 1)
 				{
-					General.Map.UndoRedo.CreateUndo("Flip " + selected.Count + " linedefs");
-					General.Interface.DisplayStatus(StatusType.Action, "Flipped " + selected.Count + " linedefs.");
+					General.Map.UndoRedo.CreateUndo("Flip " + selected.Count + " lines");
+					General.Interface.DisplayStatus(StatusType.Action, "Flipped " + selected.Count + " lines.");
 				}
 				else
 				{
-					General.Map.UndoRedo.CreateUndo("Flip linedef");
-					General.Interface.DisplayStatus(StatusType.Action, "Flipped a linedef.");
+					General.Map.UndoRedo.CreateUndo("Flip line");
+					General.Interface.DisplayStatus(StatusType.Action, "Flipped a line.");
 				}
 
 				// Flip all selected linedefs
@@ -840,7 +840,7 @@ namespace mxd.DukeBuilder.EditModes
 			}
 		}
 
-		[BeginAction("flipsidedefs")]
+		/*[BeginAction("flipsidedefs")]
 		public void FlipSidedefs()
 		{
 			// No selected lines?
@@ -862,13 +862,13 @@ namespace mxd.DukeBuilder.EditModes
 				// Make undo
 				if(selected.Count > 1)
 				{
-					General.Map.UndoRedo.CreateUndo("Flip " + selected.Count + " sidedefs");
-					General.Interface.DisplayStatus(StatusType.Action, "Flipped " + selected.Count + " sidedefs.");
+					General.Map.UndoRedo.CreateUndo("Flip " + selected.Count + " walls");
+					General.Interface.DisplayStatus(StatusType.Action, "Flipped " + selected.Count + " walls.");
 				}
 				else
 				{
-					General.Map.UndoRedo.CreateUndo("Flip sidedefs");
-					General.Interface.DisplayStatus(StatusType.Action, "Flipped sidedefs.");
+					General.Map.UndoRedo.CreateUndo("Flip a wall");
+					General.Interface.DisplayStatus(StatusType.Action, "Flipped a wall.");
 				}
 
 				// Flip sidedefs in all selected linedefs
@@ -892,7 +892,7 @@ namespace mxd.DukeBuilder.EditModes
 				General.Interface.RefreshInfo();
 				General.Interface.RedrawDisplay();
 			}
-		}
+		}*/
 
 		#endregion
 	}

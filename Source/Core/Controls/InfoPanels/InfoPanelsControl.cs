@@ -76,9 +76,9 @@ namespace mxd.DukeBuilder.Controls
 		public void RefreshInfo() { ShowInfo(lastinfoobject); }
 		public void ShowInfo(MapElement obj)
 		{
-			// TODO: WallInfoPanel
 			if(obj is Vertex) ShowVertexInfo(obj as Vertex);
 			else if(obj is Linedef) ShowLineInfo(obj as Linedef);
+			else if(obj is Sidedef) ShowWallInfo(obj as Sidedef);
 			else if(obj is Sector) ShowSectorInfo(obj as Sector);
 			else if(obj is Thing) ShowSpriteInfo(obj as Thing);
 			else HideInfo();
@@ -90,6 +90,7 @@ namespace mxd.DukeBuilder.Controls
 			// Hide them all
 			lastinfoobject = null;
 			if(lineinfo.Visible) lineinfo.Hide();
+			if(wallinfo.Visible) wallinfo.Hide();
 			if(vertexinfo.Visible) vertexinfo.Hide();
 			if(sectorinfo.Visible) sectorinfo.Hide();
 			if(spriteinfo.Visible) spriteinfo.Hide();
@@ -106,7 +107,7 @@ namespace mxd.DukeBuilder.Controls
 			statistics.Visible = showmodename;
 		}
 
-		// Show linedef info
+		// Show line info
 		private void ShowLineInfo(Linedef l)
 		{
 			if(l.IsDisposed)
@@ -118,6 +119,7 @@ namespace mxd.DukeBuilder.Controls
 			lastinfoobject = l;
 			modename.Visible = false;
 			if(vertexinfo.Visible) vertexinfo.Hide();
+			if(wallinfo.Visible) wallinfo.Hide();
 			if(sectorinfo.Visible) sectorinfo.Hide();
 			if(spriteinfo.Visible) sectorinfo.Hide();
 			if(IsExpanded)
@@ -133,6 +135,34 @@ namespace mxd.DukeBuilder.Controls
 			labelcollapsedinfo.Refresh();
 		}
 
+		// Show wall info
+		private void ShowWallInfo(Sidedef w)
+		{
+			if(w.IsDisposed)
+			{
+				HideInfo();
+				return;
+			}
+
+			lastinfoobject = w;
+			modename.Visible = false;
+			if(vertexinfo.Visible) vertexinfo.Hide();
+			if(lineinfo.Visible) lineinfo.Hide();
+			if(sectorinfo.Visible) sectorinfo.Hide();
+			if(spriteinfo.Visible) sectorinfo.Hide();
+			if(IsExpanded)
+			{
+#if DEBUG
+				console.Visible = console.AlwaysOnTop;
+#endif
+				wallinfo.ShowInfo(w);
+			}
+
+			// Show info on collapsed label
+			labelcollapsedinfo.Text = "Wall " + w.Index + " (HiTag: " + w.HiTag + ", LoTag: " + w.LoTag + ")";
+			labelcollapsedinfo.Refresh();
+		}
+
 		// Show vertex info
 		private void ShowVertexInfo(Vertex v)
 		{
@@ -145,6 +175,7 @@ namespace mxd.DukeBuilder.Controls
 			lastinfoobject = v;
 			modename.Visible = false;
 			if(lineinfo.Visible) lineinfo.Hide();
+			if(wallinfo.Visible) wallinfo.Hide();
 			if(sectorinfo.Visible) sectorinfo.Hide();
 			if(spriteinfo.Visible) spriteinfo.Hide();
 			if(IsExpanded)
@@ -172,6 +203,7 @@ namespace mxd.DukeBuilder.Controls
 			lastinfoobject = s;
 			modename.Visible = false;
 			if(lineinfo.Visible) lineinfo.Hide();
+			if(wallinfo.Visible) wallinfo.Hide();
 			if(vertexinfo.Visible) vertexinfo.Hide();
 			if(spriteinfo.Visible) spriteinfo.Hide();
 			if(IsExpanded)
@@ -186,7 +218,7 @@ namespace mxd.DukeBuilder.Controls
 			if(General.Map.Config.SectorEffects.ContainsKey(s.LoTag))
 				labelcollapsedinfo.Text = General.Map.Config.SectorEffects[s.LoTag].ToString();
 			else
-				labelcollapsedinfo.Text = "HiTag: " + s.HiTag + ", LoTag: " + s.LoTag;
+				labelcollapsedinfo.Text = "Sector " + s.Index +  " (HiTag: " + s.HiTag + ", LoTag: " + s.LoTag + ")";
 
 			labelcollapsedinfo.Refresh();
 		}
@@ -203,6 +235,7 @@ namespace mxd.DukeBuilder.Controls
 			lastinfoobject = s;
 			modename.Visible = false;
 			if(lineinfo.Visible) lineinfo.Hide();
+			if(wallinfo.Visible) wallinfo.Hide();
 			if(vertexinfo.Visible) vertexinfo.Hide();
 			if(sectorinfo.Visible) sectorinfo.Hide();
 			if(IsExpanded)

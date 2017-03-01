@@ -119,7 +119,8 @@ namespace mxd.DukeBuilder.Editing
 				General.Actions.UnbindMethods(this);
 				
 				// Clean up
-				
+				foreach(var i in allmodes) i.Dispose(); //mxd
+
 				// Done
 				isdisposed = true;
 			}
@@ -167,7 +168,7 @@ namespace mxd.DukeBuilder.Editing
 		public bool CancelVolatileMode()
 		{
 			// Volatile mode?
-			if((General.Map != null) & (mode != null) && mode.Attributes.Volatile && !disengaging)
+			if((General.Map != null) && (mode != null) && mode.Attributes.Volatile && !disengaging)
 			{
 				// Cancel
 				disengaging = true;
@@ -175,11 +176,9 @@ namespace mxd.DukeBuilder.Editing
 				mode.OnCancel();
 				return true;
 			}
-			else
-			{
-				// Mode is not volatile
-				return false;
-			}
+
+			// Mode is not volatile
+			return false;
 		}
 		
 		// This disengages a volatile mode, leaving the choice to cancel or accept to the editing mode
@@ -193,11 +192,9 @@ namespace mxd.DukeBuilder.Editing
 				ChangeMode(prevstablemode.Name);
 				return true;
 			}
-			else
-			{
-				// Mode is not volatile
-				return false;
-			}
+
+			// Mode is not volatile
+			return false;
 		}
 		
 		// This returns specific editing mode info by name
@@ -242,8 +239,9 @@ namespace mxd.DukeBuilder.Editing
 				{
 					// Include the mode when it is listed and enabled
 					// Also include the mode when it is not optional
-					if( (General.Map.ConfigSettings.EditModes.ContainsKey(emi.Type.FullName) &&
-					     General.Map.ConfigSettings.EditModes[emi.Type.FullName]) || !emi.IsOptional )
+					if( !emi.IsOptional || 
+						(General.Map.ConfigSettings.EditModes.ContainsKey(emi.Type.FullName) &&
+					     General.Map.ConfigSettings.EditModes[emi.Type.FullName]) )
 					{
 						// Add the mode to be used and bind switch action
 						usedmodes.Add(emi);

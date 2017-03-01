@@ -32,7 +32,7 @@ namespace mxd.DukeBuilder.Editing
 	{
 		#region ================== Constants
 
-		private const int DEFAULT_GRID_SIZE = 1024;
+		private const int DEFAULT_GRID_SIZE = 256;
 
 		#endregion
 

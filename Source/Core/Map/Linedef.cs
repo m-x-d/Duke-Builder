@@ -375,6 +375,12 @@ namespace mxd.DukeBuilder.Map
 		// This flips the sidedefs
 		public void FlipSidedefs()
 		{
+			//mxd. FirstWalls may need updating
+			if(front != null && front == front.Sector.FirstWall)
+				front.Sector.FirstWall = (back ?? General.GetByIndex(front.Sector.Sidedefs, 0));
+			if(back != null && back == back.Sector.FirstWall)
+				back.Sector.FirstWall = (front ?? General.GetByIndex(back.Sector.Sidedefs, 0));
+			
 			// Flip sidedefs
 			Sidedef oldfront = front;
 			Sidedef oldback = back;

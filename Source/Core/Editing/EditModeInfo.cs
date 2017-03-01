@@ -41,7 +41,6 @@ namespace mxd.DukeBuilder.Editing
 		private ActionDelegate switchactiondel;
 
 		// Mode button
-		private Stream buttonimagestream;
 		private Image buttonimage;
 		private string buttondesc;
 		private int buttonorder = int.MaxValue;
@@ -71,18 +70,20 @@ namespace mxd.DukeBuilder.Editing
 			this.attribs = attr;
 			
 			// Make switch action info
-			if((attribs.SwitchAction != null) && (attribs.SwitchAction.Length > 0))
+			if(!string.IsNullOrEmpty(attribs.SwitchAction))
 				switchactionattr = new BeginActionAttribute(attribs.SwitchAction);
 			
 			// Make button info
 			if(attr.ButtonImage != null)
 			{
-				buttonimagestream = plugin.GetResourceStream(attr.ButtonImage);
-				if(buttonimagestream != null)
+				using(Stream buttonimagestream = plugin.GetResourceStream(attr.ButtonImage))
 				{
-					buttonimage = Image.FromStream(buttonimagestream);
-					buttondesc = attr.DisplayName;
-					buttonorder = attr.ButtonOrder;
+					if(buttonimagestream != null)
+					{
+						buttonimage = Image.FromStream(buttonimagestream);
+						buttondesc = attr.DisplayName;
+						buttonorder = attr.ButtonOrder;
+					}
 				}
 			}
 			
@@ -95,8 +96,11 @@ namespace mxd.DukeBuilder.Editing
 		{
 			// Dispose
 			UnbindSwitchAction();
-			buttonimage.Dispose();
-			buttonimagestream.Dispose();
+			if(buttonimage != null)
+			{
+				buttonimage.Dispose();
+				buttonimage = null;
+			}
 
 			// Clean up
 			plugin = null;

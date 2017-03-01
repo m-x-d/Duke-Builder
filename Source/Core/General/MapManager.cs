@@ -225,7 +225,7 @@ namespace mxd.DukeBuilder
 			this.visualcamera = new VisualCamera();
 			General.Editing.ChangeMode(configinfo.StartMode);
 			ClassicMode cmode = (General.Editing.Mode as ClassicMode);
-			if(cmode != null) cmode.SetZoom(4f);
+			if(cmode != null) cmode.SetZoom(Rendering.Renderer2D.DEFAULT_ZOOM);
 			renderer2d.SetViewMode((ViewMode)General.Settings.DefaultViewMode);
 			
 			// Success

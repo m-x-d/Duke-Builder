@@ -32,11 +32,12 @@
 			this.labelcollapsedinfo = new System.Windows.Forms.Label();
 			this.buttontoggleinfo = new System.Windows.Forms.Button();
 			this.console = new mxd.DukeBuilder.DebugConsole();
+			this.statistics = new mxd.DukeBuilder.Controls.StatisticsControl();
 			this.spriteinfo = new mxd.DukeBuilder.Controls.SpriteInfoPanel();
 			this.sectorinfo = new mxd.DukeBuilder.Controls.SectorInfoPanel();
 			this.lineinfo = new mxd.DukeBuilder.Controls.LineInfoPanel();
 			this.vertexinfo = new mxd.DukeBuilder.Controls.VertexInfoPanel();
-			this.statistics = new mxd.DukeBuilder.Controls.StatisticsControl();
+			this.wallinfo = new mxd.DukeBuilder.Controls.InfoPanels.WallInfoPanel();
 			this.SuspendLayout();
 			// 
 			// modename
@@ -87,6 +88,17 @@
 			this.console.TabIndex = 9;
 			this.console.TabStop = false;
 			// 
+			// statistics
+			// 
+			this.statistics.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.statistics.ForeColor = System.Drawing.SystemColors.GrayText;
+			this.statistics.Location = new System.Drawing.Point(912, 6);
+			this.statistics.Name = "statistics";
+			this.statistics.Size = new System.Drawing.Size(180, 88);
+			this.statistics.TabIndex = 10;
+			this.statistics.TabStop = false;
+			this.statistics.Visible = false;
+			// 
 			// spriteinfo
 			// 
 			this.spriteinfo.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -126,6 +138,7 @@
 			// vertexinfo
 			// 
 			this.vertexinfo.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.vertexinfo.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.vertexinfo.Location = new System.Drawing.Point(0, 0);
 			this.vertexinfo.MaximumSize = new System.Drawing.Size(10000, 100);
 			this.vertexinfo.MinimumSize = new System.Drawing.Size(100, 100);
@@ -135,16 +148,15 @@
 			this.vertexinfo.TabStop = false;
 			this.vertexinfo.Visible = false;
 			// 
-			// statistics
+			// wallinfo
 			// 
-			this.statistics.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.statistics.ForeColor = System.Drawing.SystemColors.GrayText;
-			this.statistics.Location = new System.Drawing.Point(912, 6);
-			this.statistics.Name = "statistics";
-			this.statistics.Size = new System.Drawing.Size(180, 88);
-			this.statistics.TabIndex = 10;
-			this.statistics.TabStop = false;
-			this.statistics.Visible = false;
+			this.wallinfo.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.wallinfo.Location = new System.Drawing.Point(0, 0);
+			this.wallinfo.Name = "wallinfo";
+			this.wallinfo.Size = new System.Drawing.Size(1100, 100);
+			this.wallinfo.TabIndex = 11;
+			this.wallinfo.TabStop = false;
+			this.wallinfo.Visible = false;
 			// 
 			// InfoPanelsControl
 			// 
@@ -158,6 +170,7 @@
 			this.Controls.Add(this.spriteinfo);
 			this.Controls.Add(this.sectorinfo);
 			this.Controls.Add(this.lineinfo);
+			this.Controls.Add(this.wallinfo);
 			this.Controls.Add(this.vertexinfo);
 			this.Name = "InfoPanelsControl";
 			this.Size = new System.Drawing.Size(1100, 100);
@@ -177,6 +190,7 @@
 		private System.Windows.Forms.Button buttontoggleinfo;
 		private DebugConsole console;
 		private StatisticsControl statistics;
+		private mxd.DukeBuilder.Controls.InfoPanels.WallInfoPanel wallinfo;
 
 	}
 }

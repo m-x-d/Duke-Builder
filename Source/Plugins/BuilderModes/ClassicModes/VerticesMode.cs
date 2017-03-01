@@ -274,7 +274,7 @@ namespace mxd.DukeBuilder.EditModes
 				if(l != null)
 				{
 					// Create undo
-					General.Map.UndoRedo.CreateUndo("Split linedef");
+					General.Map.UndoRedo.CreateUndo("Split line");
 
 					Vector2D insertpos;
 
@@ -568,7 +568,7 @@ namespace mxd.DukeBuilder.EditModes
 		
 		// This creates a new vertex at the mouse position
 		[BeginAction("insertitem", BaseAction = true)]
-		public virtual void InsertVertexAction() { VerticesMode.InsertVertex(mousemappos, renderer.Scale); }
+		public virtual void InsertVertexAction() { InsertVertex(mousemappos, renderer.Scale); }
 		public static void InsertVertex(Vector2D mousemappos, float rendererscale)
 		{
 			bool snaptogrid = General.Interface.ShiftState ^ General.Interface.SnapToGrid;
@@ -578,13 +578,12 @@ namespace mxd.DukeBuilder.EditModes
 			if(General.Interface.MouseInDisplay)
 			{
 				Vector2D insertpos;
-				Linedef l = null;
-				
+
 				// Create undo
 				General.Map.UndoRedo.CreateUndo("Insert vertex");
 
 				// Snap to geometry?
-				l = General.Map.Map.NearestLinedefRange(mousemappos, BuilderPlug.Me.SplitLinedefsRange / rendererscale);
+				Linedef l = General.Map.Map.NearestLinedefRange(mousemappos, BuilderPlug.Me.SplitLinedefsRange / rendererscale);
 				if(snaptonearest && (l != null))
 				{
 					// Snip to grid also?

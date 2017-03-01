@@ -118,7 +118,8 @@ namespace mxd.DukeBuilder.Map
 			blockpropchange = false;
 		}
 
-		public int CalculateBrightness(int shade)
+		public static int CalculateBrightness(int shade) { return CalculateBrightness(shade, 255); }
+		public static int CalculateBrightness(int shade, byte alpha)
 		{
 			//TODO: more correct shade implementation? Also calculate fog density factor?
 			int level = 256 - General.Clamp(shade, 0, 32) * 8;
@@ -130,7 +131,7 @@ namespace mxd.DukeBuilder.Map
 				//flevel = (192.0f - (float)(192 - level) * 1.5f);
 
 			byte blevel = (byte)General.Clamp(level, 0, 255);
-			PixelColor c = new PixelColor(255, blevel, blevel, blevel);
+			PixelColor c = new PixelColor(alpha, blevel, blevel, blevel);
 			return c.ToInt();
 		}
 

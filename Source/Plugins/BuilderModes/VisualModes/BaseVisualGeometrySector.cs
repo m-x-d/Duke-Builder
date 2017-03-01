@@ -242,8 +242,7 @@ namespace mxd.DukeBuilder.EditModes
 					foreach(Sector s in sectors)
 					{
 						VisualSector vs = mode.GetVisualSector(s);
-						if(vs != null)
-							(vs as BaseVisualSector).UpdateSectorGeometry(true);
+						if(vs != null) (vs as BaseVisualSector).UpdateSectorGeometry(true);
 					}
 				}
 			}
@@ -275,10 +274,9 @@ namespace mxd.DukeBuilder.EditModes
 		{
 			changed = true;
 			ChangeAngle(amount);
-			//Sector.Sector.UpdateCache();
 
 			// Rebuild sector
-			Sector.UpdateSectorGeometry(false);
+			Sector.UpdateSectorGeometry(true);
 		}
 
 		//mxd. Image offset change

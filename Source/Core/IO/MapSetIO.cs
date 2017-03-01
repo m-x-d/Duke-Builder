@@ -80,6 +80,8 @@ namespace mxd.DukeBuilder.IO
 		public abstract string WallFlipYFlag { get; }
 		public abstract string WallMasked { get; }
 		public abstract string WallMaskedSolid { get; }
+		public abstract string WallSemiTransparent { get; }
+		public abstract string WallTransparent { get; }
 
 		public abstract string SectorTextureExpansionFlag { get; }
 		public abstract string SectorRelativeAlignmentFlag { get; }

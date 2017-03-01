@@ -42,7 +42,7 @@ namespace mxd.DukeBuilder.Controls
 		{
 			// Setup line
 			length.Text = l.Length.ToString("0.##");
-			angle.Text = l.AngleDeg + "\u00B0";
+			angle.Text = General.WrapAngle(l.AngleDeg) + "\u00B0";
 			infopanel.Text = " Line " + l.Index;
 			
 			// Setup walls

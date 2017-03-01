@@ -62,6 +62,8 @@ namespace mxd.DukeBuilder.IO
 		string WallFlipYFlag { get; }
 		string WallMasked { get; }
 		string WallMaskedSolid { get; }
+		string WallSemiTransparent { get; }
+		string WallTransparent { get; }
 
 		// Sector flags
 		string SectorTextureExpansionFlag { get; } // 1 texture pixel == 16 mu when unset, 8 mu when set

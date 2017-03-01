@@ -811,7 +811,8 @@ namespace mxd.DukeBuilder.Windows
 					General.Map.Graphics.Reset();
 
 					//mxd. Aspect ratio may've been changed
-					General.Map.CRenderer3D.CreateProjection();
+					if(!General.Map.Graphics.Shaders.World3D.IsDisposed)
+						General.Map.CRenderer3D.CreateProjection();
 				}
 
 				// This is a dirty trick to give the display a new mousemove event with correct arguments
@@ -1635,7 +1636,7 @@ namespace mxd.DukeBuilder.Windows
 			
 			// Create a button
 			index = toolbar.Items.IndexOf(seperatormodes);
-			item = new ToolStripButton(modeinfo.ButtonDesc, modeinfo.ButtonImage, new EventHandler(EditModeButtonHandler));
+			item = new ToolStripButton(modeinfo.ButtonDesc, modeinfo.ButtonImage, EditModeButtonHandler);
 			item.DisplayStyle = ToolStripItemDisplayStyle.Image;
 			item.Tag = modeinfo;
 			toolbar.Items.Insert(index, item);
@@ -1643,7 +1644,7 @@ namespace mxd.DukeBuilder.Windows
 			
 			// Create menu item
 			index = menumode.DropDownItems.Count;
-			item = new ToolStripMenuItem(controlname, modeinfo.ButtonImage, new EventHandler(EditModeButtonHandler));
+			item = new ToolStripMenuItem(controlname, modeinfo.ButtonImage, EditModeButtonHandler);
 			item.Tag = modeinfo;
 			menumode.DropDownItems.Insert(index, item);
 			editmodeitems.Add(item);

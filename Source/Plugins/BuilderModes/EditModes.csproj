@@ -287,7 +287,6 @@
       <DependentUpon>UndoRedoPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="VisualModes\NullVisualEventReceiver.cs" />
-    <Compile Include="VisualModes\TexturePlane.cs" />
     <Compile Include="VisualModes\VisualActionResult.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -330,13 +329,13 @@
     <EmbeddedResource Include="Resources\Selection3.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\DrawEllipseMode.png" />
+    <EmbeddedResource Include="Resources\DrawEllipseMode.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\DrawGeometryMode.png" />
+    <EmbeddedResource Include="Resources\DrawGeometryMode.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\DrawRectangleMode.png" />
+    <EmbeddedResource Include="Resources\DrawRectangleMode.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Reset.png" />

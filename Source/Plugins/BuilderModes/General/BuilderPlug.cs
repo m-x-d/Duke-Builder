@@ -226,23 +226,7 @@ namespace mxd.DukeBuilder.EditModes
 		{
 			ImageData img = General.Map.Data.GetImageData(s.FloorTileIndex);
 			if(img != null && img.IsImageLoaded)
-			{
-				// Offset is based on image size (with 255 being equal to texture width or height)
-				Vector2D offset = new Vector2D(s.FloorOffsetX * img.Width, s.FloorOffsetY * img.Height) * IMAGE_TO_MU_SCALER;
-				Vector2D scale = GetSurfaceScale(s.FloorFlipX, s.FloorFlipY, s.FloorSwapXY, s.FloorTextureExpansion);
-
-				float wallangle = 0f;
-				Vector2D wallstartpos = new Vector2D();
-				if(s.FloorRelativeAlignment)
-				{
-					var fw = s.FirstWall;
-					wallangle = -fw.Angle - Angle2D.PIHALF;
-					wallstartpos = (fw.IsFront ? fw.Line.Start.Position : fw.Line.End.Position);
-					scale.x *= -1;
-				}
-
-				SetupSurfaceVertices(vertices, img, scale, offset, wallstartpos, wallangle, s.FloorRelativeAlignment);
-			}
+				SetupSurfaceVertices(s, vertices, img, s.FloorOffsetX, s.FloorOffsetY, true);
 		}
 
 		// When ceiling surface geometry is created for classic modes
@@ -250,22 +234,81 @@ namespace mxd.DukeBuilder.EditModes
 		{
 			ImageData img = General.Map.Data.GetImageData(s.CeilingTileIndex);
 			if(img != null && img.IsImageLoaded)
-			{
-				// Offset is based on image size (with 255 being equal to texture width or height)
-				Vector2D offset = new Vector2D(s.CeilingOffsetX * img.Width, s.CeilingOffsetY * img.Height) * IMAGE_TO_MU_SCALER;
-				Vector2D scale = GetSurfaceScale(s.CeilingFlipX, s.CeilingFlipY, s.CeilingSwapXY, s.CeilingTextureExpansion);
+				SetupSurfaceVertices(s, vertices, img, s.CeilingOffsetX, s.CeilingOffsetY, false);
+		}
 
-				float wallangle = 0f;
-				Vector2D wallstartpos = new Vector2D();
-				if(s.CeilingRelativeAlignment)
+		//mxd. Applies UV coords to sector verts the Build way
+		private static void SetupSurfaceVertices(Sector s, FlatVertex[] vertices, ImageData img, int xpanning, int ypanning, bool floor)
+		{
+			// Flags
+			bool sloped = s.IsFlagSet(General.Map.FormatInterface.SectorSlopeFlag, floor); // curstat & 2
+			bool relativealignment = s.IsFlagSet(General.Map.FormatInterface.SectorRelativeAlignmentFlag, floor); // curstat & 64
+			bool swapxy = s.IsFlagSet(General.Map.FormatInterface.SectorSwapXYFlag, floor); // curstat & 4
+			bool flipx = s.IsFlagSet(General.Map.FormatInterface.SectorFlipXFlag, floor); // curstat & 16
+			bool flipy = s.IsFlagSet(General.Map.FormatInterface.SectorFlipYFlag, floor); // curstat & 32
+
+			// Common vars
+			int zpos = (floor ? s.FloorHeight : s.CeilingHeight);
+			Vector2D fwstart = (s.FirstWall.IsFront ? s.FirstWall.Line.Start : s.FirstWall.Line.End).Position;
+			float scalecoef = (s.IsFlagSet(General.Map.FormatInterface.SectorTextureExpansionFlag, floor) ? 8.0f : 16.0f);
+			float scalecoefx = scalecoef * img.Width;
+			float scalecoefy = scalecoef * img.Height;
+
+			int picwidth = General.NextPowerOf2(img.Width);
+			int picheight = General.NextPowerOf2(img.Height);
+
+			float secangcos, secangsin;
+			if(relativealignment)
+			{
+				secangcos = (float)Math.Cos(s.FirstWall.Angle + Angle2D.PI);
+				secangsin = (float)Math.Sin(s.FirstWall.Angle + Angle2D.PI);
+			}
+			else
+			{
+				secangcos = 0f;
+				secangsin = 0f;
+			}
+
+			// Update UVs
+			for(int i = 0; i < vertices.Length; i++)
+			{
+				int tex, tey;
+				
+				// Relative texturing
+				if(relativealignment)
 				{
-					var fw = s.FirstWall;
-					wallangle = -fw.Angle - Angle2D.PIHALF;
-					wallstartpos = (fw.IsFront ? fw.Line.Start.Position : fw.Line.End.Position);
-					scale.x *= -1;
+					float relxpancoef = vertices[i].x - fwstart.x;
+					float relypancoef = fwstart.y - vertices[i].y;
+
+					tex = -(int)(relxpancoef * secangsin + relypancoef * secangcos); // +
+					tey = (int)(relxpancoef * secangcos - relypancoef * secangsin);
+				}
+				else
+				{
+					tex = (int)vertices[i].x;
+					tey = (int)vertices[i].y; // -
 				}
 
-				SetupSurfaceVertices(vertices, img, scale, offset, wallstartpos, wallangle, s.CeilingRelativeAlignment);
+				if(sloped && relativealignment)
+				{
+					int heidiff = (int)(vertices[i].z - zpos);
+					
+					// Don't forget the sign, it could be negative with concave sectors
+					if(tey >= 0)
+						tey =  (int)Math.Sqrt((tey * tey) + (heidiff * heidiff));
+					else
+						tey = -(int)Math.Sqrt((tey * tey) + (heidiff * heidiff));
+				}
+
+				if(swapxy) General.Swap(ref tex, ref tey);
+				if(flipx) tex = -tex;
+				if(flipy) tey = -tey;
+
+				float xpancoef = (xpanning != 0 ? picwidth  * ((xpanning) / (256.0f * (img.Width)))  : 0f);
+				float ypancoef = (ypanning != 0 ? picheight * ((ypanning) / (256.0f * (img.Height))) : 0f);
+
+				vertices[i].u = (tex / scalecoefx) + xpancoef;
+				vertices[i].v = (tey / scalecoefy) + ypancoef;
 			}
 		}
 
@@ -356,45 +399,6 @@ namespace mxd.DukeBuilder.EditModes
 		
 		#region ================== Tools
 
-		// This applies the given values on the vertices
-		private static void SetupSurfaceVertices(FlatVertex[] vertices, ImageData img, Vector2D scale, Vector2D texoffset, Vector2D walloffset, float wallangle, bool relativeoffset)
-		{
-			// Do the math for all vertices
-			Vector2D texscale = new Vector2D(1.0f / img.Width, 1.0f / img.Height);
-
-			if(relativeoffset)
-			{
-				// Replace offsets and use rotation when relative alignment flag is set
-				for(int i = 0; i < vertices.Length; i++)
-				{
-					Vector2D pos = (new Vector2D(vertices[i].x, vertices[i].y) - walloffset).GetRotated(wallangle);
-					pos = (pos + texoffset) * scale * texscale;
-					vertices[i].u = pos.x;
-					vertices[i].v = pos.y;
-				}
-			}
-			else
-			{
-				for(int i = 0; i < vertices.Length; i++)
-				{
-					Vector2D pos = new Vector2D(vertices[i].x, vertices[i].y);
-					pos = (pos + texoffset) * scale * texscale;
-					vertices[i].u = pos.x;
-					vertices[i].v = pos.y;
-				}
-			}
-		}
-
-		//mxd
-		private static Vector2D GetSurfaceScale(bool flipx, bool flipy, bool swapxy, bool textureexpansion)
-		{
-			Vector2D scale = new Vector2D((flipx ? -IMAGE_TO_MU_SCALER : IMAGE_TO_MU_SCALER), 
-										  (flipy ? -IMAGE_TO_MU_SCALER : IMAGE_TO_MU_SCALER));
-			if(swapxy) General.Swap(ref scale.x, ref scale.y);
-			if(textureexpansion) scale *= 2;
-			return scale;
-		}
-
 		// This adjusts texture coordinates for splitted lines according to the user preferences
 		public void AdjustSplitCoordinates(Linedef oldline, Linedef newline)
 		{
@@ -434,10 +438,9 @@ namespace mxd.DukeBuilder.EditModes
 		public Type[] FindClasses(Type t)
 		{
 			List<Type> found = new List<Type>();
-			Type[] types;
 
 			// Get all exported types
-			types = Assembly.GetExecutingAssembly().GetTypes();
+			Type[] types = Assembly.GetExecutingAssembly().GetTypes();
 			foreach(Type it in types)
 			{
 				// Compare types

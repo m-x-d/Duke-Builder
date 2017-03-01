@@ -114,7 +114,7 @@ namespace mxd.DukeBuilder.Editing
 		#region ================== Constructor / Disposer
 
 		/// <summary>
-		/// This registers an EditMode derived class as a known editing mode within Doom Builder.
+		/// This registers an EditMode derived class as a known editing mode within Duke Builder.
 		/// Allows automatic binding with an action and a button on the toolbar/menu.
 		/// </summary>
 		public EditModeAttribute()

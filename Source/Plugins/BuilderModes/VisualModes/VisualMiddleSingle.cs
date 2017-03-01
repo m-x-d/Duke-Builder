@@ -16,11 +16,9 @@
 
 #region ================== Namespaces
 
-using System;
-using mxd.DukeBuilder.EditModes.VisualModes;
-using mxd.DukeBuilder.Map;
-using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.Data;
+using mxd.DukeBuilder.Geometry;
+using mxd.DukeBuilder.Map;
 using mxd.DukeBuilder.Rendering;
 using mxd.DukeBuilder.VisualModes;
 
@@ -63,17 +61,20 @@ namespace mxd.DukeBuilder.EditModes
 				vr = new Vector2D(Sidedef.Line.Start.Position);
 			}
 
+			// Keep top and bottom planes for intersection testing
+			top = Sidedef.Sector.CeilingPlane;
+			bottom = Sidedef.Sector.FloorPlane;
+
 			// Get ceiling and floor heights
-			Sector s = Sidedef.Sector;
-			float fl = s.FloorPlane.GetZ(vl);
-			float fr = s.FloorPlane.GetZ(vr);
-			float cl = s.CeilingPlane.GetZ(vl);
-			float cr = s.CeilingPlane.GetZ(vr);
+			float cl = top.GetZ(vl);
+			float cr = top.GetZ(vr);
+			float fl = bottom.GetZ(vl);
+			float fr = bottom.GetZ(vr);
 
 			// Anything to see?
 			if(cl - fl > 0.01f || cr - fr > 0.01f)
 			{
-				int brightness = Sidedef.CalculateBrightness(Sidedef.Shade);
+				int brightness = MapElement.CalculateBrightness(Sidedef.Shade);
 
 				// Texture given?
 				Texture = General.Map.Data.GetImageData(Sidedef.TileIndex);
@@ -88,113 +89,30 @@ namespace mxd.DukeBuilder.EditModes
 					setuponloadedimage = Sidedef.TileIndex;
 				}
 
-				// Get texture scaled size
-				Vector2D texscale = new Vector2D(1.0f / Texture.Width, 1.0f / Texture.Height);
-
-				// Get texture offsets. Offset is based on image size (with 255 being equal to texture width or height)
-				Vector2D offset = new Vector2D(Sidedef.OffsetX * Texture.Width, Sidedef.OffsetY * Texture.Height) * BuilderPlug.IMAGE_TO_MU_SCALER;
-				Vector2D scale = new Vector2D(Sidedef.ImageFlipX ? -BuilderPlug.IMAGE_TO_MU_SCALER : BuilderPlug.IMAGE_TO_MU_SCALER, Sidedef.ImageFlipY ? -BuilderPlug.IMAGE_TO_MU_SCALER : BuilderPlug.IMAGE_TO_MU_SCALER);
-
-				// Determine texture coordinates
-				TexturePlane tp = new TexturePlane();
-				float floorbias = (Sidedef.Sector.CeilingHeight == Sidedef.Sector.FloorHeight) ? 1.0f : 0.0f;
-				
-				tp.TextureBottomRight.x = (float)Math.Round(Sidedef.Line.Length);
-				tp.TextureBottomRight.y = (Sidedef.Sector.CeilingHeight - (Sidedef.Sector.FloorHeight + floorbias));
-
-				// Apply texture offset
-				tp.TextureTopLeft = (tp.TextureTopLeft + offset) * scale * texscale;
-				tp.TextureBottomRight = (tp.TextureBottomRight + offset) * scale * texscale;
-
-				// Transform pixel coordinates to texture coordinates
-				//tp.TextureTopLeft /= texsize;
-				//tp.TextureBottomRight /= texsize;
-
-				// Left top and right bottom of the geometry
-				tp.VertTopLeft = new Vector3D(vl.x, vl.y, Sidedef.Sector.CeilingHeight);
-				tp.VertBottomRight = new Vector3D(vr.x, vr.y, Sidedef.Sector.FloorHeight + floorbias);
-
-				// Make the right-top coordinates
-				tp.TextureTopRight = new Vector2D(tp.TextureBottomRight.x, tp.TextureTopLeft.y);
-				tp.VertTopRight = new Vector3D(tp.VertBottomRight.x, tp.VertBottomRight.y, tp.VertTopLeft.z);
-
 				WorldVertex[] verts = new WorldVertex[6];
-				/*verts[0] = new WorldVertex(vl.x, vl.y, fl, brightness, 0, 0);
+				verts[0] = new WorldVertex(vl.x, vl.y, fl, brightness, 0, 0);
 				verts[1] = new WorldVertex(vl.x, vl.y, cl, brightness, 0, 0);
 				verts[2] = new WorldVertex(vr.x, vr.y, cr, brightness, 0, 0);
 				verts[3] = verts[0];
 				verts[4] = verts[2];
-				verts[5] = new WorldVertex(vr.x, vr.y, fr, brightness, 0, 0);*/
+				verts[5] = new WorldVertex(vr.x, vr.y, fr, brightness, 0, 0);
 
-				Vector3D v;
-				
-				v = new Vector3D(vl.x, vl.y, fl);
-				verts[0] = new WorldVertex(v, tp.GetTextureCoordsAt(v), brightness);
-				
-				v = new Vector3D(vl.x, vl.y, cl);
-				verts[1] = new WorldVertex(v, tp.GetTextureCoordsAt(v), brightness);
+				//mxd. Set UV coords the Build way...
+				int xref = (!Sidedef.ImageFlipX ? 1 : 0);
+				int xrefinv = 1 - xref;
+				int yref = (Sidedef.AlignImageToBottom ? Sidedef.Sector.FloorHeight : Sidedef.Sector.CeilingHeight);
+				float ypancoef = CalculateOffsetV(Sidedef.OffsetY, Texture, !Sidedef.AlignImageToBottom);
+				float scaledtexrepeaty = ((Texture.Height * 128f) / Sidedef.RepeatY);
 
-				v = new Vector3D(vr.x, vr.y, cr);
-				verts[2] = new WorldVertex(v, tp.GetTextureCoordsAt(v), brightness);
-				
-				verts[3] = verts[0];
-				verts[4] = verts[2];
-
-				v = new Vector3D(vr.x, vr.y, fr);
-				verts[5] = new WorldVertex(v, tp.GetTextureCoordsAt(v), brightness);
-				
-				// Determine texture coordinates
-				// See http://doom.wikia.com/wiki/Texture_alignment
-				// We just use pixels for coordinates for now
-				//if(Sidedef.Line.IsFlagSet(General.Map.Config.LowerUnpeggedFlag))
-				//{
-					// When lower unpegged is set, the middle texture is bound to the bottom
-					//t1.y = tsz.y - geoheight;
-				//}
-				//t2.x = t1.x + Sidedef.Line.Length;
-				//t2.y = t1.y + geoheight;
-
-				// Apply texture offset
-				/*if(General.Map.Config.ScaledTextureOffsets && !base.Texture.WorldPanning)
+				for(int i = 0; i < 6; i++)
 				{
-					t1 += new Vector2D(Sidedef.OffsetX * base.Texture.Scale.x, Sidedef.OffsetY * base.Texture.Scale.y);
-					t2 += new Vector2D(Sidedef.OffsetX * base.Texture.Scale.x, Sidedef.OffsetY * base.Texture.Scale.y);
+					float dist = ((i == 2 || i == 4 ||i == 5) ? xref : xrefinv);
+
+					verts[i].u = ((dist * 8.0f * Sidedef.RepeatX) + Sidedef.OffsetX) / Texture.Width;
+					// w->wall.buffer[i].v = (-(float)(yref + (w->wall.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+					verts[i].v = ((yref + (-verts[i].z)) / scaledtexrepeaty) - ypancoef;
+					if(Sidedef.ImageFlipY) verts[i].v *= -1;
 				}
-				else
-				{*/
-					//t1 += new Vector2D(Sidedef.OffsetX, Sidedef.OffsetY);
-					//t2 += new Vector2D(Sidedef.OffsetX, Sidedef.OffsetY);
-				//}
-
-				// Transform pixel coordinates to texture coordinates
-				//t1 /= tsz;
-				//t2 /= tsz;
-
-				// Get world coordinates for geometry
-				/*Vector2D v1, v2;
-				if(Sidedef.IsFront)
-				{
-					v1 = Sidedef.Line.Start.Position;
-					v2 = Sidedef.Line.End.Position;
-				}
-				else
-				{
-					v1 = Sidedef.Line.End.Position;
-					v2 = Sidedef.Line.Start.Position;
-				}*/
-
-				// Make vertices
-				/*WorldVertex[] verts = new WorldVertex[6];
-				verts[0] = new WorldVertex(v1.x, v1.y, geobottom, brightness, t1.x, t2.y);
-				verts[1] = new WorldVertex(v1.x, v1.y, geotop, brightness, t1.x, t1.y);
-				verts[2] = new WorldVertex(v2.x, v2.y, geotop, brightness, t2.x, t1.y);
-				verts[3] = verts[0];
-				verts[4] = verts[2];
-				verts[5] = new WorldVertex(v2.x, v2.y, geobottom, brightness, t2.x, t2.y);*/
-
-				// Keep properties
-				//base.top = geotop;
-				//base.bottom = geobottom;
 				
 				// Apply vertices
 				SetVertices(verts);

@@ -44,6 +44,8 @@ namespace mxd.DukeBuilder.EditModes
 	{
 		#region ================== Constants
 
+		protected const int MULTISELECT_START_MOVE_PIXELS = 2; //mxd
+
 		#endregion
 
 		#region ================== Variables
@@ -54,6 +56,7 @@ namespace mxd.DukeBuilder.EditModes
 
 		// Interface
 		protected bool editpressed;
+		protected bool selectpressed; //mxd
 
 		// Labels
 		private Dictionary<Sector, TextLabel> labels;
@@ -479,12 +482,11 @@ namespace mxd.DukeBuilder.EditModes
 		// Selection
 		protected override void OnSelectBegin()
 		{
+			selectpressed = true; //mxd
+			
 			// Item highlighted?
 			if((highlighted != null) && !highlighted.IsDisposed)
 			{
-				// Flip selection
-				SelectSector(highlighted, !highlighted.Selected, true);
-
 				// Update display
 				if(renderer.StartPlotter(false))
 				{
@@ -494,11 +496,6 @@ namespace mxd.DukeBuilder.EditModes
 					renderer.Present();
 				}
 			}
-			else
-			{
-				// Start making a selection
-				StartMultiSelection();
-			}
 
 			base.OnSelectBegin();
 		}
@@ -506,12 +503,17 @@ namespace mxd.DukeBuilder.EditModes
 		// End selection
 		protected override void OnSelectEnd()
 		{
+			selectpressed = false; //mxd
+			
 			// Not stopping from multiselection?
 			if(!selecting)
 			{
 				// Item highlighted?
 				if((highlighted != null) && !highlighted.IsDisposed)
 				{
+					//mxd. Flip selection
+					SelectSector(highlighted, !highlighted.Selected, true);
+					
 					// Update display
 					if(renderer.StartPlotter(false))
 					{
@@ -525,6 +527,14 @@ namespace mxd.DukeBuilder.EditModes
 					labels[highlighted].Color = General.Colors.Highlight;
 					UpdateOverlay();
 					renderer.Present();
+				}
+				else if(BuilderPlug.Me.AutoClearSelection) //mxd
+				{
+					if(General.Map.Map.SelectedSectorsCount > 0)
+					{
+						General.Map.Map.ClearSelectedLinedefs();
+						General.Map.Map.ClearSelectedSectors();
+					}
 				}
 			}
 
@@ -614,8 +624,20 @@ namespace mxd.DukeBuilder.EditModes
 		{
 			base.OnMouseMove(e);
 
+			//mxd
+			if(selectpressed && !editpressed && !selecting)
+			{
+				// Check if moved enough pixels for multiselect
+				Vector2D delta = mousedownpos - mousepos;
+				if((Math.Abs(delta.x) > MULTISELECT_START_MOVE_PIXELS) ||
+				   (Math.Abs(delta.y) > MULTISELECT_START_MOVE_PIXELS))
+				{
+					// Start multiselecting
+					StartMultiSelection();
+				}
+			}
 			// Not holding any buttons?
-			if(e.Button == MouseButtons.None)
+			else if(e.Button == MouseButtons.None)
 			{
 				// Find the nearest linedef within highlight range
 				Linedef l = General.Map.Map.NearestLinedef(mousemappos);

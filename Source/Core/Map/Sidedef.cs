@@ -94,6 +94,8 @@ namespace mxd.DukeBuilder.Map
 		public bool AlignImageToBottom { get { return CheckFlag(General.Map.FormatInterface.WallAlignImageToBottomFlag); } }
 		public bool Masked { get { return CheckFlag(General.Map.FormatInterface.WallMasked); } }
 		public bool MaskedSolid { get { return CheckFlag(General.Map.FormatInterface.WallMaskedSolid); } }
+		public bool SemiTransparent { get { return CheckFlag(General.Map.FormatInterface.WallSemiTransparent); } }
+		public bool Transparent { get { return CheckFlag(General.Map.FormatInterface.WallTransparent); } }
 
 		// Clone
 		internal int SerializedIndex;

@@ -534,6 +534,12 @@
     <Compile Include="Controls\InfoPanels\InfoPanelsControl.Designer.cs">
       <DependentUpon>InfoPanelsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\InfoPanels\WallInfoPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\InfoPanels\WallInfoPanel.Designer.cs">
+      <DependentUpon>WallInfoPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\MultiSelectTreeview.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -672,6 +678,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\InfoPanels\InfoPanelsControl.resx">
       <DependentUpon>InfoPanelsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\InfoPanels\WallInfoPanel.resx">
+      <DependentUpon>WallInfoPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PasteOptionsControl.resx">
       <SubType>Designer</SubType>

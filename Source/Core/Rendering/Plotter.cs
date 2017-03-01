@@ -63,19 +63,16 @@ namespace mxd.DukeBuilder.Rendering
 		}
 		
 		// This draws a pixel normally
-		/*public void DrawPixelSolid(int x, int y, ref PixelColor c)
+		public void DrawPixelSolid(int x, int y, ref PixelColor c)
 		{
 			// Draw pixel when within range
-			if((x >= 0) && (x < width) && (y >= 0) && (y < height))
+			if((x > -1) && (x < width) && (y > -1) && (y < height))
 				pixels[y * width + x] = c;
-		}*/
+		}
 
 		// This draws a pixel normally
 		public void DrawVertexSolid(int x, int y, int size, ref PixelColor c, ref PixelColor l, ref PixelColor d)
 		{
-			//mxd...
-			//y = height - y;
-			
 			int x1 = x - size;
 			int x2 = x + size;
 			int y1 = y - size;
@@ -110,33 +107,31 @@ namespace mxd.DukeBuilder.Rendering
 				pixels[y2 * width + x2] = d;
 				pixels[y1 * width + x1] = l;
 			}
-			/*
 			else
 			{
 				// Filled square
 				for(yp = y - size; yp <= y + size; yp++)
 					for(xp = x - size; xp <= x + size; xp++)
-						DrawPixelSolid(xp, yp, c);
+						DrawPixelSolid(xp, yp, ref c);
 
 				// Vertical edges
-				for(yp = y - size + 1; yp <= y + size - 1; yp++)
+				for(yp = y - size + 1; yp < y + size; yp++)
 				{
-					DrawPixelSolid(x - size, yp, l);
-					DrawPixelSolid(x + size, yp, d);
+					DrawPixelSolid(x - size, yp, ref l);
+					DrawPixelSolid(x + size, yp, ref d);
 				}
 
 				// Horizontal edges
-				for(xp = x - size + 1; xp <= x + size - 1; xp++)
+				for(xp = x - size + 1; xp < x + size; xp++)
 				{
-					DrawPixelSolid(xp, y - size, l);
-					DrawPixelSolid(xp, y + size, d);
+					DrawPixelSolid(xp, y - size, ref l);
+					DrawPixelSolid(xp, y + size, ref d);
 				}
 
 				// Corners
-				DrawPixelSolid(x + size, y + size, d);
-				DrawPixelSolid(x - size, y - size, l);
+				DrawPixelSolid(x + size, y + size, ref d);
+				DrawPixelSolid(x - size, y - size, ref l);
 			}
-			*/
 		}
 
 		// This draws a dotted grid line horizontally

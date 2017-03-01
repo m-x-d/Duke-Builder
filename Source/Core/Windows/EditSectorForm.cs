@@ -159,7 +159,7 @@ namespace mxd.DukeBuilder.Windows
 			if(first.CeilingOffsetY != VALUE_MISMATCH) ceiloffsety.Text = first.CeilingOffsetY.ToString();
 			if(first.CeilingShade != VALUE_MISMATCH) ceilshade.Text = first.CeilingShade.ToString();
 			if(first.CeilingPaletteIndex != VALUE_MISMATCH) ceilpalette.Text = first.CeilingPaletteIndex.ToString();
-			if(first.CeilingSlope != VALUE_MISMATCH) ceilslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(first.CeilingSlope) - 90, -90, 90), 3).ToString();
+			if(first.CeilingSlope != VALUE_MISMATCH) ceilslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.CeilingSlope) - 90, -90, 90), 3)).ToString();
 
 			// Floor
 			foreach(CheckBox c in floorflags.Checkboxes)
@@ -182,7 +182,7 @@ namespace mxd.DukeBuilder.Windows
 			if(first.FloorOffsetY != VALUE_MISMATCH) flooroffsety.Text = first.FloorOffsetY.ToString();
 			if(first.FloorShade != VALUE_MISMATCH) floorshade.Text = first.FloorShade.ToString();
 			if(first.FloorPaletteIndex != VALUE_MISMATCH) floorpalette.Text = first.FloorPaletteIndex.ToString();
-			if(first.FloorSlope != VALUE_MISMATCH) floorslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(first.FloorSlope) - 90, -90, 90), 3).ToString();
+			if(first.FloorSlope != VALUE_MISMATCH) floorslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.FloorSlope) - 90, -90, 90), 3)).ToString();
 
 			this.ResumeLayout();
 

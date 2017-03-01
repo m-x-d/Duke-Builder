@@ -368,7 +368,7 @@ namespace mxd.DukeBuilder.EditModes
 					VisualGeometry pickedgeo = (target.picked as VisualGeometry);
 
 					if(pickedgeo.Sidedef != null)
-						General.Interface.ShowInfo(pickedgeo.Sidedef.Line);
+						General.Interface.ShowInfo(pickedgeo.Sidedef);
 					else if(pickedgeo.Sidedef == null)
 						General.Interface.ShowInfo(pickedgeo.Sector.Sector);
 					else
