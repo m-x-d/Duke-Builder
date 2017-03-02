@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.IO;
@@ -160,7 +159,7 @@ namespace mxd.DukeBuilder.Map
 
 		//mxd. Cached flags
 		public bool CeilingParallaxed { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorParallaxedFlag); } }
-		public bool CeilingSloped { get { return ceilingsloped; } }
+		public bool CeilingSloped { get { UpdateCeilingPlane(); return ceilingsloped; } }
 		public bool CeilingSwapXY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorSwapXYFlag); } }
 		public bool CeilingFlipX { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlipXFlag); } }
 		public bool CeilingFlipY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlipYFlag); } }
@@ -168,7 +167,7 @@ namespace mxd.DukeBuilder.Map
 		public bool CeilingTextureExpansion { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorTextureExpansionFlag); } }
 
 		public bool FloorParallaxed { get { return CheckFloorFlag(General.Map.FormatInterface.SectorParallaxedFlag); } }
-		public bool FloorSloped { get { return floorsloped; } }
+		public bool FloorSloped { get { UpdateFloorPlane(); return floorsloped; } }
 		public bool FloorSwapXY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorSwapXYFlag); } }
 		public bool FloorFlipX { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlipXFlag); } }
 		public bool FloorFlipY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlipYFlag); } }
@@ -435,8 +434,6 @@ namespace mxd.DukeBuilder.Map
 					floorvertices[i].y = triangles.Vertices[i].y;
 					floorvertices[i].z = 1.0f;
 					floorvertices[i].c = color;
-					//floorvertices[i].u = triangles.Vertices[i].x;
-					//floorvertices[i].v = triangles.Vertices[i].y;
 				}
 
 				// Create bounding box
@@ -459,10 +456,7 @@ namespace mxd.DukeBuilder.Map
 					ceilingvertices[i].y = triangles.Vertices[i].y;
 					ceilingvertices[i].z = 1.0f;
 					ceilingvertices[i].c = color;
-					//floorvertices[i].u = triangles.Vertices[i].x;
-					//floorvertices[i].v = triangles.Vertices[i].y;
 				}
-				//for(int i = 0; i < floorvertices.Length; i++) floorvertices[i].c = color;
 
 				General.Plugins.OnSectorCeilingSurfaceUpdate(this, ref ceilingvertices);
 				ceilingvertices.CopyTo(updateinfo.CeilingVertices, 0);
@@ -768,12 +762,6 @@ namespace mxd.DukeBuilder.Map
 		}
 
 		//mxd
-		public bool CheckFlag(string flagname, bool floor)
-		{
-			return floor ? CheckFloorFlag(flagname) : CheckCeilingFlag(flagname);
-		}
-
-		//mxd
 		private bool CheckFloorFlag(string flagname)
 		{
 			return (!string.IsNullOrEmpty(flagname) && floorflags.ContainsKey(flagname) && floorflags[flagname]);
@@ -861,7 +849,8 @@ namespace mxd.DukeBuilder.Map
 		{
 			Vector3D center = new Vector3D(firstwall.Line.GetCenterPoint(), planeheight);
 			float anglexy = (up ? firstwall.Line.Angle - Angle2D.PIHALF : firstwall.Line.Angle + Angle2D.PIHALF);
-			return new Plane(center, anglexy, slopeangle, up);
+			float anglez = (up ? -slopeangle : slopeangle);
+			return new Plane(center, anglexy, anglez, up);
 		}
 		
 		#endregion

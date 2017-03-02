@@ -26,7 +26,6 @@ namespace mxd.DukeBuilder.Controls
 		{
 			// Set titles
 			propertiesgroup.Text = " Wall " + w.Index + " (" + (w.IsFront ? "front" : "back") + ", sector " + w.Sector.Index + (w.Sector.FirstWall == w ? ", first wall) " : ") ");
-			flags.Title = (w.IsFront ? " Front " : " Back ") + "flags ";
 			
 			// Set properties
 			General.DisplayZoomedImage(tex, General.Map.Data.GetImageData(w.TileIndex).GetPreview());

@@ -153,6 +153,11 @@ namespace mxd.DukeBuilder.IO
 			foreach(var w in walls)
 			{
 				if(w.OtherWallIndex > -1) numverts--;
+
+#if DEBUG
+				if(prevwalls.ContainsKey(w.NextWallIndex)) throw new NotSupportedException("Invalid OtherWallIndex!");
+#endif
+
 				prevwalls[w.NextWallIndex] = w;
 			}
 
@@ -351,11 +356,17 @@ namespace mxd.DukeBuilder.IO
 		{
 			// Create sprites
 			map.SetCapacity(0, 0, 0, 0, map.Things.Count + buildsprites.Count);
-			foreach(var bs in buildsprites)
+
+			for(int i = 0; i < buildsprites.Count; i++)
 			{
+				var bs = buildsprites[i];
+
 				// Link sector
-				bs.Sector = sectors[bs.SectorIndex].Sector;
-				
+				if(bs.SectorIndex < sectors.Count)
+					bs.Sector = sectors[bs.SectorIndex].Sector;
+				else
+					General.ErrorLogger.Add(ErrorType.Warning, "Sprite " + i + " references non-existing sector " + bs.SectorIndex);
+
 				// Create new item
 				Thing t = map.CreateThing();
 				t.Update(bs);
@@ -548,11 +559,13 @@ namespace mxd.DukeBuilder.IO
 
 				foreach(List<Sidedef> sideslist in sectorsidelists)
 				{
-					foreach(Sidedef side in sideslist)
+					// Add to lookup table
+					for(int i = 0; i < sideslist.Count; i++)
 					{
-						wallids.Add(side, wallids.Count);
+						wallids.Add(sideslist[i], wallids.Count);
 					}
 					
+					// Create BuildWalls
 					for(int i = 0; i < sideslist.Count; i++)
 					{
 						var bw = new BuildWall(sideslist[i]);
@@ -576,22 +589,6 @@ namespace mxd.DukeBuilder.IO
 				}
 			}
 
-			// Now re-sort, so FirstWall is first for each sector...
-			List<BuildWall> sortedwalls = new List<BuildWall>(wallids.Count);
-			foreach(Sector s in sectorids.Keys)
-			{
-				// First add the FirstWall...
-				Sidedef first = (s.FirstWall ?? General.GetFirst(s.Sidedefs));
-				sortedwalls.Add(buildwallids[wallids[first]]);
-
-				// Add the rest of the walls...
-				foreach(Sidedef side in s.Sidedefs)
-				{
-					if(side == first) continue;
-					sortedwalls.Add(buildwallids[wallids[side]]);
-				}
-			}
-
 			// Write map structures
 			using(BinaryWriter writer = new BinaryWriter(mapdata))
 			{
@@ -600,6 +597,8 @@ namespace mxd.DukeBuilder.IO
 
 				// First sprite must be player start
 				Thing playerstart = map.GetThingByIndex(0);
+				
+				//TODO: check this BEFORE saving the map!
 				if(playerstart == null) throw new InvalidDataException("Map has no Player start!");
 				if(playerstart.Sector == null || playerstart.Sector.IsDisposed) playerstart.DetermineSector();
 				if(playerstart.Sector == null) throw new InvalidDataException("Player start must be inside a sector!");
@@ -619,7 +618,7 @@ namespace mxd.DukeBuilder.IO
 				WriteSectors(writer, sectorids.Keys);
 
 				// Write walls
-				WriteWalls(writer, sortedwalls);
+				WriteWalls(writer, buildwallids.Values);
 
 				// Write sprites
 				WriteSprites(writer, map.Things, sectorids);

@@ -142,7 +142,7 @@ namespace mxd.DukeBuilder.Geometry
 			return null;
 		}
 
-		//mxd. Finds outer and inner wall loops for map saving. First return
+		//mxd. Finds outer and inner wall loops for map saving
 		internal static List<List<Sidedef>> GetSortedSectorSides(Sector target)
 		{
 			List<LinedefSide> alllines = new List<LinedefSide>();
@@ -152,20 +152,46 @@ namespace mxd.DukeBuilder.Geometry
 			// Find the outer lines
 			Sidedef start = General.GetFirst(target.Sidedefs);
 			EarClipPolygon p = FindOuterLines(start.Line, start.IsFront, alllines, sectorlines);
-			if(p != null)
+			if(p == null) return null;
+
+
+			HashSet<Vertex> sectorverts = new HashSet<Vertex>();
+			foreach(Linedef l in sectorlines)
 			{
-				HashSet<Vertex> sectorverts = new HashSet<Vertex>();
-				foreach(Linedef l in sectorlines)
-				{
-					sectorverts.Add(l.Start);
-					sectorverts.Add(l.End);
-				}
+				sectorverts.Add(l.Start);
+				sectorverts.Add(l.End);
+			}
 				
-				// Find the inner lines
-				return FindInnerLines(p, alllines, sectorverts, true);
+			// Find the inner lines
+			var sideloops = FindInnerLines(p, alllines, sectorverts, true);
+
+			// First loop must be the one with sector's FirstWall, and should start with it...
+			var result = new List<List<Sidedef>>(sideloops.Count);
+
+			// Find and add the FirstWall loop
+			for(int i = 0; i < sideloops.Count; i++)
+			{
+				int pos = sideloops[i].IndexOf(target.FirstWall);
+				if(pos != -1)
+				{
+					var firstwallloop = new List<Sidedef>(sideloops[i].Count);
+					
+					// Add walls starting with FirstWall
+					for(int j = pos; j < sideloops[i].Count; j++) firstwallloop.Add(sideloops[i][j]);
+
+					// Add walls before FirstWall
+					for(int j = 0; j < pos; j++) firstwallloop.Add(sideloops[i][j]);
+
+					// Add to result, remove from found loops
+					result.Add(firstwallloop);
+					sideloops.RemoveAt(i);
+					break;
+				}
 			}
 
-			return null;
+			// Add the rest of the loops
+			result.AddRange(sideloops);
+			return result;
 		}
 
 		// This finds the inner lines of the sector and adds them to the sector polygon
