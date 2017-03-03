@@ -248,6 +248,27 @@ namespace mxd.DukeBuilder.EditModes
 			}
 		}
 
+		//mxd. Set as First wall
+		public virtual void OnSetFirstWall()
+		{
+			// Find nearest sidedef
+			Sidedef sd = MapSet.NearestSidedef(Sector.Sector.Sidedefs, pickintersect);
+
+			// Set it as FirstWall
+			if(sd != null)
+			{
+				// Make undo
+				mode.CreateUndo("Set First wall");
+				mode.SetActionResult("First wall assigned.");
+
+				// Set it
+				Sector.Sector.FirstWall = sd;
+
+				// Sector update required
+				Sector.Changed = true;
+			}
+		}
+
 		// Sector height change
 		public virtual void OnChangeTargetHeight(int amount)
 		{

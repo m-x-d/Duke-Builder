@@ -39,13 +39,9 @@ namespace mxd.DukeBuilder.VisualModes
 		#endregion
 
 		#region ================== Variables
-
-		// 3D Mode thing
-		//protected Thing modething;
 		
 		// Graphics
 		protected IRenderer3D renderer;
-		//private Renderer3D renderer3d;
 		
 		// Options
 		private bool processgeometry;

@@ -194,6 +194,8 @@ namespace mxd.DukeBuilder.Map
 			this.ceilingflags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.firstwall = null;
 			this.extra = -1;
+			this.floorslope = Angle2D.PIHALF; //mxd
+			this.ceilingslope = Angle2D.PIHALF; //mxd
 
 			if(map == General.Map.Map) General.Map.UndoRedo.RecAddSector(this);
 		}

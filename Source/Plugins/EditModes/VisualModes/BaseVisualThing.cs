@@ -343,7 +343,7 @@ namespace mxd.DukeBuilder.EditModes
 		public virtual void OnSelectBegin() { }
 		public virtual void OnEditBegin() { }
 		public virtual void OnMouseMove(MouseEventArgs e) { }
-		//public virtual void OnChangeTargetShade(bool up) { }
+		public virtual void OnSetFirstWall() { } //mxd
 		public virtual void OnChangeImageOffset(int horizontal, int vertical) { }
 		public virtual void OnSelectImage() { }
 		public virtual void OnCopyImage() { }
@@ -351,7 +351,6 @@ namespace mxd.DukeBuilder.EditModes
 		public virtual void OnCopyImageOffsets() { }
 		public virtual void OnPasteImageOffsets() { }
 		public virtual void OnImageAlign(bool alignx, bool aligny) { }
-		//public virtual void OnToggleUpperUnpegged() { }
 		public virtual void OnToggleBottomAlignment() { }
 		public virtual void OnResetImageOffsets() { }
 		public virtual void OnProcess(double deltatime) { }
@@ -359,7 +358,6 @@ namespace mxd.DukeBuilder.EditModes
 		public virtual void OnInsert() { }
 		public virtual void OnDelete() { }
 		public virtual void ApplyImage(int tileindex) { }
-		//public virtual void ApplyUpperUnpegged(bool set) { }
 		public virtual void ApplyBottomAlignment(bool set) { }
 		
 		// Return image index

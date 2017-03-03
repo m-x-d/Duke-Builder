@@ -122,7 +122,7 @@ namespace mxd.DukeBuilder.EditModes
 		{
 			mode.CreateUndo("Change ceiling slope angle", UndoGroup.AngleChange, Sector.Sector.Index);
 			Sector.Sector.SetFlag(General.Map.FormatInterface.SectorSlopeFlag, true, false);
-			Sector.Sector.CeilingSlope = General.Clamp(Sector.Sector.CeilingSlope + amount, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
+			Sector.Sector.CeilingSlope = General.Clamp(Sector.Sector.CeilingSlope - amount, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
 			mode.SetActionResult("Changed ceiling slope angle to " + Math.Round(Angle2D.RadToDeg(Sector.Sector.CeilingSlope) - 90, 3) + ".");
 		}
 

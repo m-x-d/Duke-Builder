@@ -31,6 +31,7 @@ namespace mxd.DukeBuilder.EditModes
 		public void OnEditEnd() { }
 		public void OnMouseMove(MouseEventArgs e) { }
 		public void OnChangeTargetHeight(int amount) { }
+		public void OnSetFirstWall() { } //mxd
 		public void OnChangeTargetShade(bool up) { }
 		public void OnChangeTargetAngle(float amount) { } //mxd
 		public void OnChangeImageOffset(int horizontal, int vertical) { }

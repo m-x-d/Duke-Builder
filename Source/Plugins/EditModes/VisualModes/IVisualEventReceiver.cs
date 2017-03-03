@@ -31,6 +31,7 @@ namespace mxd.DukeBuilder.EditModes
 		void OnEditEnd();
 		void OnMouseMove(MouseEventArgs e);
 		void OnChangeTargetHeight(int amount);
+		void OnSetFirstWall(); //mxd
 		void OnChangeTargetShade(bool up);
 		void OnChangeTargetAngle(float amount); //mxd
 		void OnChangeImageOffset(int horizontal, int vertical);
@@ -44,7 +45,6 @@ namespace mxd.DukeBuilder.EditModes
 		void OnPasteProperties();
 		void OnImageAlign(bool alignx, bool aligny);
 		void OnImageFloodfill();
-		//void OnToggleUpperUnpegged();
 		void OnToggleBottomAlignment();
 		void OnProcess(double deltatime);
 		void OnInsert();
@@ -52,7 +52,6 @@ namespace mxd.DukeBuilder.EditModes
 
 		// Assist functions
 		void ApplyImage(int tileindex);
-		//void ApplyUpperUnpegged(bool set);
 		void ApplyBottomAlignment(bool set);
 		
 		// Other methods

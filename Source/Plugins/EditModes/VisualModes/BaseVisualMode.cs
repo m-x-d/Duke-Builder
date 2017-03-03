@@ -55,7 +55,7 @@ namespace mxd.DukeBuilder.EditModes
 
 		// Gravity
 		private Vector3D gravity;
-		private float cameraflooroffset = 41f;		// same as in doom
+		private float cameraflooroffset = 41f;		// same as in doom //TODO: update and move to game configuration
 		private float cameraceilingoffset = 10f;
 		
 		// Object picking
@@ -90,24 +90,19 @@ namespace mxd.DukeBuilder.EditModes
 				if(target.picked is VisualGeometry)
 				{
 					VisualGeometry pickedgeo = (target.picked as VisualGeometry);
-
-					if(pickedgeo.Sidedef != null)
-						return pickedgeo.Sidedef;
-					else if(pickedgeo.Sector != null)
-						return pickedgeo.Sector;
-					else
-						return null;
+					if(pickedgeo.Sidedef != null) return pickedgeo.Sidedef;
+					if(pickedgeo.Sector != null)  return pickedgeo.Sector;
+					return null;
 				}
+
 				// Thing picked?
-				else if(target.picked is VisualThing)
+				if(target.picked is VisualThing)
 				{
 					VisualThing pickedthing = (target.picked as VisualThing);
 					return pickedthing.Thing;
 				}
-				else
-				{
-					return null;
-				}
+
+				return null;
 			}
 		}
 
@@ -115,6 +110,7 @@ namespace mxd.DukeBuilder.EditModes
 		
 		public bool IsSingleSelection { get { return singleselection; } }
 		public bool SelectionChanged { get { return selectionchanged; } set { selectionchanged |= value; } }
+		internal VisualPickResult Target { get { return target; } } //mxd
 
 		#endregion
 		
@@ -951,6 +947,15 @@ namespace mxd.DukeBuilder.EditModes
 			PostAction();
 		}
 
+		[BeginAction("setfirstwall")] //mxd
+		public void SetFirstWall()
+		{
+			PreAction(UndoGroup.FirstWallChange);
+			List<IVisualEventReceiver> objs = GetSelectedObjects(true, true, false);
+			foreach(IVisualEventReceiver i in objs) i.OnSetFirstWall();
+			PostAction();
+		}
+
 		[BeginAction("showvisualthings")]
 		public void ShowVisualThings()
 		{
@@ -1071,7 +1076,6 @@ namespace mxd.DukeBuilder.EditModes
 			renderer.SetCrosshairBusy(true);
 			General.Interface.RedrawDisplay();
 			GetTargetEventReceiver(false).OnSelectImage();
-			UpdateChangedObjects();
 			renderer.SetCrosshairBusy(false);
 			PostAction();
 		}

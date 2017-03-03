@@ -286,6 +286,19 @@ namespace mxd.DukeBuilder.EditModes
 					break;
 			}
 		}
+
+		//mxd. Set as First wall
+		public virtual void OnSetFirstWall()
+		{
+			mode.CreateUndo("Set First wall");
+			mode.SetActionResult("First wall assigned.");
+
+			// Set it
+			Sidedef.Sector.FirstWall = Sidedef;
+
+			// Sector update required
+			Sector.Changed = true;
+		}
 		
 		// Reset texture offsets
 		public virtual void OnResetImageOffsets()

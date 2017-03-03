@@ -25,5 +25,6 @@ namespace mxd.DukeBuilder.EditModes
 		ImageOffsetChange,
 		SectorHeightChange,
 		AngleChange,
+		FirstWallChange,
 	}
 }
