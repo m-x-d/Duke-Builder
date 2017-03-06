@@ -291,13 +291,11 @@ namespace mxd.DukeBuilder.EditModes
 
 				if(sloped && relativealignment)
 				{
-					int heidiff = (int)(vertices[i].z - zpos) * -16;
+					float curzpos = (floor ? s.FloorPlane.GetZ(vertices[i].x, vertices[i].y) : s.CeilingPlane.GetZ(vertices[i].x, vertices[i].y));
+					int heidiff = (int)(curzpos - zpos);
 					
 					// Don't forget the sign, it could be negative with concave sectors
-					if(tey >= 0)
-						tey =  (int)Math.Sqrt((tey * tey) + (heidiff * heidiff));
-					else
-						tey = -(int)Math.Sqrt((tey * tey) + (heidiff * heidiff));
+					tey = (int)Math.Sqrt((tey * tey) + (heidiff * heidiff)) * (tey < 0 ? -1 : 1);
 				}
 
 				if(swapxy) General.Swap(ref tex, ref tey);

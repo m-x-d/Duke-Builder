@@ -52,7 +52,8 @@ namespace mxd.DukeBuilder.Controls
 		public new string Text { get { return textbox.Text; } set { textbox.Text = value; } }
 		internal NumericTextbox Textbox { get { return textbox; } }
 		public StepsList StepValues { get { return steps; } set { steps = value; } }
-		
+		public NumericTextboxApplyMode ApplyMode { get { return textbox.ApplyMode; } } //mxd
+
 		#endregion
 		
 		#region ================== Constructor / Disposer

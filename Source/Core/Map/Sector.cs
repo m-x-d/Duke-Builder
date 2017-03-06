@@ -832,6 +832,9 @@ namespace mxd.DukeBuilder.Map
 				ceilingsloped = (CheckCeilingFlag(General.Map.FormatInterface.SectorSlopeFlag) && ceilingslope != 0);
 				ceilingplane = (ceilingsloped ? GetSlopePlane(ceilingslope, ceilingheight, false) : new Plane(new Vector3D(0, 0, -1), ceilingheight));
 				ceilingplaneupdateneeded = false;
+
+				// "Align to first wall" flag + slope needs UV recalculation...
+				UpdateCeilingSurface();
 			}
 		}
 
@@ -843,6 +846,9 @@ namespace mxd.DukeBuilder.Map
 				floorsloped = (CheckFloorFlag(General.Map.FormatInterface.SectorSlopeFlag) && floorslope != 0);
 				floorplane = (floorsloped ? GetSlopePlane(floorslope, floorheight, true) : new Plane(new Vector3D(0, 0, 1), -floorheight));
 				floorplaneupdateneeded = false;
+
+				// "Align to first wall" flag + slope needs UV recalculation...
+				UpdateFloorSurface();
 			}
 		}
 

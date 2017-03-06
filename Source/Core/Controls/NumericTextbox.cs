@@ -16,6 +16,7 @@
 
 #region ================== Namespaces
 
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Forms;
@@ -24,6 +25,14 @@ using System.Windows.Forms;
 
 namespace mxd.DukeBuilder.Controls
 {
+	public enum NumericTextboxApplyMode
+	{
+		NO_VALUE,
+		SET,
+		ADD,
+		SUBTRACT,
+	}
+	
 	public class NumericTextbox : AutoSelectTextbox
 	{
 		#region ================== Variables
@@ -32,6 +41,13 @@ namespace mxd.DukeBuilder.Controls
 		private bool allowrelative;		// Allow ++ and -- prefix for relative changes
 		private bool allowdecimal;		// Allow decimal (float) numbers
 		private bool controlpressed;
+
+		//mxd. Result calculation caching...
+		private int value;
+		private float valuefloat;
+		private bool valuechanged = true;
+		private bool floatvaluechanged = true;
+		private NumericTextboxApplyMode applymode;
 		
 		#endregion
 
@@ -40,6 +56,7 @@ namespace mxd.DukeBuilder.Controls
 		public bool AllowNegative { get { return allownegative; } set { allownegative = value; } }
 		public bool AllowRelative { get { return allowrelative; } set { allowrelative = value; } }
 		public bool AllowDecimal { get { return allowdecimal; } set { allowdecimal = value; } }
+		public NumericTextboxApplyMode ApplyMode { get { return applymode; } } //mxd
 
 		#endregion
 
@@ -75,10 +92,10 @@ namespace mxd.DukeBuilder.Controls
 			string allowedchars = "0123456789\b";
 
 			// Determine allowed chars
-			if(allownegative) allowedchars += CultureInfo.CurrentUICulture.NumberFormat.NegativeSign;
+			if(allownegative) allowedchars += CultureInfo.CurrentCulture.NumberFormat.NegativeSign;
 			if(allowrelative) allowedchars += "+-";
 			if(controlpressed) allowedchars += "\u0018\u0003\u0016";
-			if(allowdecimal) allowedchars += CultureInfo.CurrentUICulture.NumberFormat.CurrencyDecimalSeparator;
+			if(allowdecimal) allowedchars += CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
 			
 			// Check if key is not allowed
 			if(allowedchars.IndexOf(e.KeyChar) == -1)
@@ -168,7 +185,16 @@ namespace mxd.DukeBuilder.Controls
 			// Call base
 			base.OnValidating(e);
 		}
-		
+
+		//mxd. Value recalculation required!
+		protected override void OnTextChanged(EventArgs e)
+		{
+			valuechanged = true;
+			floatvaluechanged = true;
+
+			base.OnTextChanged(e);
+		}
+
 		// This checks if the number is relative
 		public bool CheckIsRelative()
 		{
@@ -179,79 +205,105 @@ namespace mxd.DukeBuilder.Controls
 		// This determines the result value
 		public int GetResult(int original)
 		{
-			string textpart = this.Text;
-
-			// Strip prefixes
-			textpart = textpart.Replace("+", "");
-			textpart = textpart.Replace("-", "");
-			
-			// Any numbers left?
-			if(textpart.Length > 0)
+			//mxd. Update cached value? 
+			if(valuechanged)
 			{
-				// Prefixed with ++?
-				int result;
-				if(this.Text.StartsWith("++"))
-				{
-					// Add number to original
-					if(!int.TryParse(textpart, out result)) result = 0;
-					return original + result;
-				}
+				// Get text without prefixes
+				string textpart = this.Text.Replace("+", "").Replace("-", "");
 
-				// Prefixed with --?
-				if(this.Text.StartsWith("--"))
+				// Any numbers left?
+				if(textpart.Length > 0)
 				{
-					// Subtract number from original
-					if(!int.TryParse(textpart, out result)) result = 0;
-					int newvalue = original - result;
-					if(!allownegative && (newvalue < 0)) newvalue = 0;
-					return newvalue;
+					//mxd. Parse result and set Apply mode. Result will be set to 0 if parsing fails
+					if(this.Text.StartsWith("++"))
+					{
+						int.TryParse(textpart, out value);
+						applymode = NumericTextboxApplyMode.ADD;
+					}
+					else if(this.Text.StartsWith("--"))
+					{
+						int.TryParse(textpart, out value);
+						applymode = NumericTextboxApplyMode.SUBTRACT;
+					}
+					else
+					{
+						int.TryParse(this.Text, out value);
+						applymode = NumericTextboxApplyMode.SET;
+					}
 				}
-
-				// Return the new value
-				return int.TryParse(this.Text, out result) ? result : original;
+				else
+				{
+					applymode = NumericTextboxApplyMode.NO_VALUE;
+				}
+				
+				valuechanged = false;
+			}
+			
+			//mxd. Calculate result
+			int result;
+			switch(applymode)
+			{
+				case NumericTextboxApplyMode.NO_VALUE: result = original; break;
+				case NumericTextboxApplyMode.SET: result = value; break;
+				case NumericTextboxApplyMode.ADD: result = value + original; break;
+				case NumericTextboxApplyMode.SUBTRACT: result = original - value; break;
+				default: throw new NotImplementedException("Unsupported ApplyMode");
 			}
 
-			// Nothing given, keep original value
-			return original;
+			//mxd. Return result
+			return (!allownegative ? Math.Max(result, 0) : result);
 		}
 
 		// This determines the result value
 		public float GetResultFloat(float original)
 		{
-			string textpart = this.Text;
-
-			// Strip prefixes
-			textpart = textpart.Replace("+", "");
-			textpart = textpart.Replace("-", "");
-
-			// Any numbers left?
-			if(textpart.Length > 0)
+			//mxd. Update cached value? 
+			if(floatvaluechanged)
 			{
-				// Prefixed with ++?
-				float result;
-				if(this.Text.StartsWith("++"))
+				// Get text without prefixes
+				string textpart = this.Text.Replace("+", "").Replace("-", "");
+
+				// Any numbers left?
+				if(textpart.Length > 0)
 				{
-					// Add number to original
-					if(!float.TryParse(textpart, out result)) result = 0;
-					return original + result;
+					//mxd. Parse result and set Apply mode. Result will be set to 0 if parsing fails
+					if(this.Text.StartsWith("++"))
+					{
+						float.TryParse(textpart, out valuefloat);
+						applymode = NumericTextboxApplyMode.ADD;
+					}
+					else if(this.Text.StartsWith("--"))
+					{
+						float.TryParse(textpart, out valuefloat);
+						applymode = NumericTextboxApplyMode.SUBTRACT;
+					}
+					else
+					{
+						float.TryParse(this.Text, out valuefloat);
+						applymode = NumericTextboxApplyMode.SET;
+					}
+				}
+				else
+				{
+					applymode = NumericTextboxApplyMode.NO_VALUE;
 				}
 
-				// Prefixed with --?
-				if(this.Text.StartsWith("--"))
-				{
-					// Subtract number from original
-					if(!float.TryParse(textpart, out result)) result = 0;
-					float newvalue = original - result;
-					if(!allownegative && (newvalue < 0)) newvalue = 0;
-					return newvalue;
-				}
-
-				// Return the new value
-				return float.TryParse(this.Text, out result) ? result : original;
+				floatvaluechanged = false;
 			}
 
-			// Nothing given, keep original value
-			return original;
+			//mxd. Calculate result
+			float result;
+			switch(applymode)
+			{
+				case NumericTextboxApplyMode.NO_VALUE: result = original; break;
+				case NumericTextboxApplyMode.SET: result = valuefloat; break;
+				case NumericTextboxApplyMode.ADD: result = valuefloat + original; break;
+				case NumericTextboxApplyMode.SUBTRACT: result = original - valuefloat; break;
+				default: throw new NotImplementedException("Unsupported ApplyMode");
+			}
+
+			//mxd. Return result
+			return (!allownegative ? Math.Max(result, 0f) : result);
 		}
 		
 		#endregion

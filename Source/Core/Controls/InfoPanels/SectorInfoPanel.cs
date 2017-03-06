@@ -72,7 +72,7 @@ namespace mxd.DukeBuilder.Controls
 			flooroffsety.Text = s.FloorOffsetY.ToString();
 			floorshade.Text = s.FloorShade.ToString();
 			floorpalette.Text = s.FloorPaletteIndex.ToString();
-			floorslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(s.FloorSlope) - 90, -90, 90), 3) + "\u00B0";
+			floorslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(s.FloorSlope) - 90, -90, 90), 1) + "\u00B0";
 
 			// Ceiling info
 			General.DisplayZoomedImage(ceiltex, General.Map.Data.GetImageData(s.CeilingTileIndex).GetPreview());
@@ -81,7 +81,7 @@ namespace mxd.DukeBuilder.Controls
 			ceiloffsety.Text = s.CeilingOffsetY.ToString();
 			ceilshade.Text = s.CeilingShade.ToString();
 			ceilpalette.Text = s.CeilingPaletteIndex.ToString();
-			ceilslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(s.CeilingSlope) - 90, -90, 90), 3) + "\u00B0";
+			ceilslope.Text = Math.Round(General.Wrap(Angle2D.RadToDeg(s.CeilingSlope) - 90, -90, 90), 1) + "\u00B0";
 
 			// Disable identification labels when showing default values
 			hitag.Enabled = s.HiTag > 0;

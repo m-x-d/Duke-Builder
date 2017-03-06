@@ -132,43 +132,9 @@ namespace mxd.DukeBuilder.Controls
 
 		public void ApplyTo(IEnumerable<Sidedef> walls)
 		{
-			// Collect results...
-			BuildWall props = new BuildWall();
-
 			// Collect flags...
 			Dictionary<string, CheckState> flagsstate = new Dictionary<string, CheckState>();
 			foreach(CheckBox c in flags.Checkboxes) flagsstate[c.Tag.ToString()] = c.CheckState;
-
-			// Properties
-			props.TileIndex = tex.GetResult(VALUE_MISMATCH);
-			props.MaskedTileIndex = maskedtex.GetResult(VALUE_MISMATCH);
-			props.OffsetX = offsetx.GetResult(VALUE_MISMATCH);
-			props.OffsetY = offsety.GetResult(VALUE_MISMATCH);
-			props.RepeatX = repeatx.GetResult(VALUE_MISMATCH);
-			props.RepeatY = repeaty.GetResult(VALUE_MISMATCH);
-			props.Shade = shade.GetResult(VALUE_MISMATCH);
-			props.PaletteIndex = palette.GetResult(VALUE_MISMATCH);
-
-			// Clamp properties
-			if(props.TileIndex != VALUE_MISMATCH)
-				props.TileIndex = General.Clamp(props.TileIndex, General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
-			if(props.MaskedTileIndex != VALUE_MISMATCH)
-				props.MaskedTileIndex = General.Clamp(props.MaskedTileIndex, General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
-			if(props.OffsetX != VALUE_MISMATCH)
-				props.OffsetX = General.Wrap(props.OffsetX, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.OffsetY != VALUE_MISMATCH)
-				props.OffsetY = General.Wrap(props.OffsetY, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.RepeatX != VALUE_MISMATCH)
-				props.RepeatX = General.Clamp(props.RepeatX, General.Map.FormatInterface.MinImageRepeat, General.Map.FormatInterface.MaxImageRepeat);
-			if(props.RepeatY != VALUE_MISMATCH)
-				props.RepeatY = General.Clamp(props.RepeatY, General.Map.FormatInterface.MinImageRepeat, General.Map.FormatInterface.MaxImageRepeat);
-			if(props.Shade != VALUE_MISMATCH)
-				props.Shade = General.Clamp(props.Shade, General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
-
-			// Identification
-			props.HiTag = hitag.GetResult(VALUE_MISMATCH);
-			props.LoTag = lotag.GetResult(VALUE_MISMATCH);
-			props.Extra = extra.GetResult(VALUE_MISMATCH);
 
 			// Apply to all walls...
 			foreach(Sidedef w in walls)
@@ -197,19 +163,19 @@ namespace mxd.DukeBuilder.Controls
 				}
 
 				// Properties
-				if(props.TileIndex != VALUE_MISMATCH) w.TileIndex = props.TileIndex;
-				if(props.MaskedTileIndex != VALUE_MISMATCH) w.MaskedTileIndex = props.MaskedTileIndex;
-				if(props.OffsetX != VALUE_MISMATCH) w.OffsetX = props.OffsetX;
-				if(props.OffsetY != VALUE_MISMATCH) w.OffsetY = props.OffsetY;
-				if(props.RepeatX != VALUE_MISMATCH) w.RepeatX = props.RepeatX;
-				if(props.RepeatY != VALUE_MISMATCH) w.RepeatY = props.RepeatY;
-				if(props.Shade != VALUE_MISMATCH) w.Shade = props.Shade;
-				if(props.PaletteIndex != VALUE_MISMATCH) w.PaletteIndex = props.PaletteIndex;
+				w.TileIndex = General.Clamp(tex.GetResult(w.TileIndex), General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
+				w.MaskedTileIndex = General.Clamp(maskedtex.GetResult(w.MaskedTileIndex), General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
+				w.OffsetX = General.Wrap(offsetx.GetResult(w.OffsetX), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				w.OffsetY = General.Wrap(offsety.GetResult(w.OffsetY), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				w.RepeatX = General.Clamp(repeatx.GetResult(w.RepeatX), General.Map.FormatInterface.MinImageRepeat, General.Map.FormatInterface.MaxImageRepeat);
+				w.RepeatY = General.Clamp(repeaty.GetResult(w.RepeatY), General.Map.FormatInterface.MinImageRepeat, General.Map.FormatInterface.MaxImageRepeat);
+				w.Shade = General.Clamp(shade.GetResult(w.Shade), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+				w.PaletteIndex = palette.GetResult(w.PaletteIndex);
 
 				// Identification
-				if(props.HiTag != VALUE_MISMATCH) w.HiTag = props.HiTag;
-				if(props.LoTag != VALUE_MISMATCH) w.LoTag = props.LoTag;
-				if(props.Extra != VALUE_MISMATCH) w.Extra = props.Extra;
+				w.HiTag = hitag.GetResult(w.HiTag);
+				w.LoTag = lotag.GetResult(w.LoTag);
+				w.Extra = extra.GetResult(w.Extra);
 			}
 		}
 

@@ -256,108 +256,63 @@ namespace mxd.DukeBuilder.Windows
 			if(!VerifyValue(extra.GetResult(0), General.Map.FormatInterface.MinExtra, General.Map.FormatInterface.MaxExtra, "Sprite extra")) return;
 			if(!VerifyValue(palette.GetResult(0), 0, 255, "Sprite palette")) return;
 
+			// Verify the coordinates
+			int px = posx.GetResult(0);
+			int py = -posy.GetResult(0);
+			if((px < General.Map.FormatInterface.MinCoordinate) || (px > General.Map.FormatInterface.MaxCoordinate) ||
+			   (py < General.Map.FormatInterface.MinCoordinate) || (py > General.Map.FormatInterface.MaxCoordinate))
+			{
+				General.ShowWarningMessage("Sprite coordinates must be between " + General.Map.FormatInterface.MinCoordinate + " and " + General.Map.FormatInterface.MaxCoordinate + ".", MessageBoxButtons.OK);
+				return;
+			}
+
 			// Make undo
 			General.Map.UndoRedo.CreateUndo("Edit " + (sprites.Count > 1 ? sprites.Count + " sprites" : "sprite"));
-
-			// Collect results...
-			BuildSprite props = new BuildSprite();
-
-			// Type
-			props.TileIndex = tex.GetResult(VALUE_MISMATCH);
-
-			// Properties
-			props.OffsetX = offsetx.GetResult(VALUE_MISMATCH);
-			props.OffsetY = offsety.GetResult(VALUE_MISMATCH);
-			props.RepeatX = repeatx.GetResult(VALUE_MISMATCH);
-			props.RepeatY = repeaty.GetResult(VALUE_MISMATCH);
-			props.Shade = shade.GetResult(VALUE_MISMATCH);
-			props.PaletteIndex = palette.GetResult(VALUE_MISMATCH);
-			props.Owner = owner.GetResult(VALUE_MISMATCH);
-
-			// Position
-			props.X = posx.GetResult(VALUE_MISMATCH);
-			props.Y = posy.GetResult(VALUE_MISMATCH);
-			props.Z = posz.GetResult(VALUE_MISMATCH);
-			props.VelX = velx.GetResult(VALUE_MISMATCH);
-			props.VelY = vely.GetResult(VALUE_MISMATCH);
-			props.VelZ = velz.GetResult(VALUE_MISMATCH);
-
-			// Angle
-			props.Angle = angle.GetResult(VALUE_MISMATCH);
-
-			// Identification
-			props.HiTag = hitag.GetResult(VALUE_MISMATCH);
-			props.LoTag = lotag.GetResult(VALUE_MISMATCH);
-			props.Extra = extra.GetResult(VALUE_MISMATCH);
 
 			// Collect flags...
 			Dictionary<string, CheckState> flagsstate = new Dictionary<string, CheckState>();
 			foreach(CheckBox c in flags.Checkboxes) flagsstate[c.Tag.ToString()] = c.CheckState;
 
-			// Clamp properties
-			if(props.TileIndex != VALUE_MISMATCH)
-				props.TileIndex = General.Clamp(props.TileIndex, General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
-			if(props.OffsetX != VALUE_MISMATCH)
-				props.OffsetX = General.Wrap(props.OffsetX, General.Map.FormatInterface.MinSpriteOffset, General.Map.FormatInterface.MaxSpriteOffset);
-			if(props.OffsetY != VALUE_MISMATCH)
-				props.OffsetY = General.Wrap(props.OffsetY, General.Map.FormatInterface.MinSpriteOffset, General.Map.FormatInterface.MaxSpriteOffset);
-			if(props.RepeatX != VALUE_MISMATCH)
-				props.RepeatX = General.Clamp(props.RepeatX, General.Map.FormatInterface.MinSpriteRepeat, General.Map.FormatInterface.MaxSpriteRepeat);
-			if(props.RepeatY != VALUE_MISMATCH)
-				props.RepeatY = General.Clamp(props.RepeatY, General.Map.FormatInterface.MinSpriteRepeat, General.Map.FormatInterface.MaxSpriteRepeat);
-			if(props.Shade != VALUE_MISMATCH)
-				props.Shade = General.Clamp(props.Shade, General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+			bool applyposition = (posx.ApplyMode != NumericTextboxApplyMode.NO_VALUE ||
+								  posy.ApplyMode != NumericTextboxApplyMode.NO_VALUE ||
+								  posz.ApplyMode != NumericTextboxApplyMode.NO_VALUE);
 
-			// Clamp position
-			if(props.X != VALUE_MISMATCH)
-				props.X = General.Clamp(props.X, General.Map.FormatInterface.MinCoordinate, General.Map.FormatInterface.MaxCoordinate);
-			if(props.Y != VALUE_MISMATCH)
-				props.Y = General.Clamp(props.Y, General.Map.FormatInterface.MinCoordinate, General.Map.FormatInterface.MaxCoordinate);
-			if(props.Z != VALUE_MISMATCH)
-				props.Z = General.Clamp(props.Z, General.Map.FormatInterface.MinCoordinate, General.Map.FormatInterface.MaxCoordinate);
-
-			// Clamp angle
-			if(props.Angle != VALUE_MISMATCH) props.Angle = General.Wrap(props.Angle, 0, 359);
-
-			bool applyposition = (props.X != VALUE_MISMATCH || props.Y != VALUE_MISMATCH || props.Z != VALUE_MISMATCH);
-			bool applyvelocity = (props.VelX != VALUE_MISMATCH || props.VelY != VALUE_MISMATCH || props.VelZ != VALUE_MISMATCH);
+			bool applyvelocity = (velx.ApplyMode != NumericTextboxApplyMode.NO_VALUE ||
+								  vely.ApplyMode != NumericTextboxApplyMode.NO_VALUE ||
+								  velz.ApplyMode != NumericTextboxApplyMode.NO_VALUE);
 			
 			// Apply to all sprites...
 			foreach(Thing s in sprites)
 			{
 				// Type
-				if(props.TileIndex != VALUE_MISMATCH) s.TileIndex = props.TileIndex;
+				s.TileIndex = General.Clamp(tex.GetResult(s.TileIndex), General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
 
 				// Properties
-				if(props.OffsetX != VALUE_MISMATCH) s.OffsetX = props.OffsetX;
-				if(props.OffsetY != VALUE_MISMATCH) s.OffsetY = props.OffsetY;
-				if(props.RepeatX != VALUE_MISMATCH) s.RepeatX = props.RepeatX;
-				if(props.RepeatY != VALUE_MISMATCH) s.RepeatY = props.RepeatY;
-				if(props.Shade != VALUE_MISMATCH) s.Shade = props.Shade;
-				if(props.PaletteIndex != VALUE_MISMATCH) s.PaletteIndex = props.PaletteIndex;
-				if(props.Owner != VALUE_MISMATCH) s.Owner = props.Owner;
-
-				// Position
+				s.OffsetX = General.Wrap(offsetx.GetResult(s.OffsetX), General.Map.FormatInterface.MinSpriteOffset, General.Map.FormatInterface.MaxSpriteOffset);
+				s.OffsetY = General.Wrap(offsety.GetResult(s.OffsetY), General.Map.FormatInterface.MinSpriteOffset, General.Map.FormatInterface.MaxSpriteOffset);
+				s.RepeatX = General.Clamp(repeatx.GetResult(s.RepeatX), General.Map.FormatInterface.MinSpriteRepeat, General.Map.FormatInterface.MaxSpriteRepeat);
+				s.RepeatY = General.Clamp(repeaty.GetResult(s.RepeatY), General.Map.FormatInterface.MinSpriteRepeat, General.Map.FormatInterface.MaxSpriteRepeat);
+				s.Shade = General.Clamp(shade.GetResult(s.Shade), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+				s.PaletteIndex = palette.GetResult(s.PaletteIndex);
+				s.Owner = owner.GetResult(s.Owner);
+				
+				// Position and velocity
 				if(applyposition)
 				{
-					s.Move(props.X != VALUE_MISMATCH ? props.X : s.Position.x,
-						   props.Y != VALUE_MISMATCH ? -props.Y : s.Position.y,
-						   props.Z != VALUE_MISMATCH ? props.Z : s.Position.z);
+					s.Move(new Vector3D(posx.GetResultFloat(s.Position.x), -posy.GetResultFloat(-s.Position.y), posz.GetResultFloat(s.Position.z)));
 				}
 				if(applyvelocity)
 				{
-					s.Velocity = new Vector3D(props.VelX != VALUE_MISMATCH ? props.VelX : s.Velocity.x,
-											  props.VelY != VALUE_MISMATCH ? props.VelY : s.Velocity.y,
-											  props.VelZ != VALUE_MISMATCH ? props.VelZ : s.Velocity.z);
+					s.Velocity = new Vector3D(velx.GetResultFloat(s.Velocity.x), vely.GetResultFloat(s.Velocity.y), velz.GetResultFloat(s.Velocity.z));
 				}
 
 				// Angle
-				if(props.Angle != VALUE_MISMATCH) s.Angle = Angle2D.DegToRad(props.Angle);
+				s.Angle = Angle2D.DegToRad(General.Wrap(angle.GetResultFloat(Angle2D.RadToDeg(s.Angle)), 0f, 359f));
 
 				// Identification
-				if(props.HiTag != VALUE_MISMATCH) s.HiTag = props.HiTag;
-				if(props.LoTag != VALUE_MISMATCH) s.LoTag = props.LoTag;
-				if(props.Extra != VALUE_MISMATCH) s.Extra = props.Extra;
+				s.HiTag = hitag.GetResult(s.HiTag);
+				s.LoTag = lotag.GetResult(s.LoTag);
+				s.Extra = extra.GetResult(s.Extra);
 
 				// Flags
 				foreach(KeyValuePair<string, CheckState> group in flagsstate)

@@ -114,7 +114,7 @@ namespace mxd.DukeBuilder.EditModes
 			mode.CreateUndo("Change floor slope angle", UndoGroup.AngleChange, Sector.Sector.Index);
 			Sector.Sector.SetFlag(General.Map.FormatInterface.SectorSlopeFlag, true, true);
 			Sector.Sector.FloorSlope = General.Clamp(Sector.Sector.FloorSlope - amount, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
-			mode.SetActionResult("Changed floor slope angle to " + Math.Round(Angle2D.RadToDeg(Sector.Sector.FloorSlope) - 90, 3) + ".");
+			mode.SetActionResult("Changed floor slope angle to " + Math.Round(Angle2D.RadToDeg(Sector.Sector.FloorSlope) - 90, 1) + ".");
 		}
 
 		//mxd. Image offset change

@@ -56,7 +56,7 @@ namespace mxd.DukeBuilder.Controls
 			// Determine z info to show
 			s.DetermineSector();
 			string zinfo = (s.Sector != null ? s.Position.z + s.Sector.FloorHeight : s.Position.z).ToString();
-			position.Text = s.Position.x + ", " + s.Position.y + ", " + zinfo;
+			position.Text = s.Position.x + ", " + (-s.Position.y) + ", " + zinfo;
 			angle.Text = (int)Math.Round(Angle2D.RadToDeg(s.Angle)) + "\u00B0";
 			clipdistance.Text = s.ClipDistance.ToString();
 			owner.Text = s.Owner.ToString();

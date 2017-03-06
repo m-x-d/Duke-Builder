@@ -159,7 +159,7 @@ namespace mxd.DukeBuilder.Windows
 			if(first.CeilingOffsetY != VALUE_MISMATCH) ceiloffsety.Text = first.CeilingOffsetY.ToString();
 			if(first.CeilingShade != VALUE_MISMATCH) ceilshade.Text = first.CeilingShade.ToString();
 			if(first.CeilingPaletteIndex != VALUE_MISMATCH) ceilpalette.Text = first.CeilingPaletteIndex.ToString();
-			if(first.CeilingSlope != VALUE_MISMATCH) ceilslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.CeilingSlope) - 90, -90, 90), 3)).ToString();
+			if(first.CeilingSlope != VALUE_MISMATCH) ceilslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.CeilingSlope) - 90, -90, 90), 1)).ToString();
 
 			// Floor
 			foreach(CheckBox c in floorflags.Checkboxes)
@@ -182,7 +182,7 @@ namespace mxd.DukeBuilder.Windows
 			if(first.FloorOffsetY != VALUE_MISMATCH) flooroffsety.Text = first.FloorOffsetY.ToString();
 			if(first.FloorShade != VALUE_MISMATCH) floorshade.Text = first.FloorShade.ToString();
 			if(first.FloorPaletteIndex != VALUE_MISMATCH) floorpalette.Text = first.FloorPaletteIndex.ToString();
-			if(first.FloorSlope != VALUE_MISMATCH) floorslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.FloorSlope) - 90, -90, 90), 3)).ToString();
+			if(first.FloorSlope != VALUE_MISMATCH) floorslope.Text = ((float)Math.Round(General.Wrap(Angle2D.RadToDeg(first.FloorSlope) - 90, -90, 90), 1)).ToString();
 
 			this.ResumeLayout();
 
@@ -265,90 +265,26 @@ namespace mxd.DukeBuilder.Windows
 			Dictionary<string, CheckState> ceilflagsstate = new Dictionary<string, CheckState>();
 			foreach(CheckBox c in ceilflags.Checkboxes) ceilflagsstate[c.Tag.ToString()] = c.CheckState;
 
-
-			// Collect results...
-			BuildSector props = new BuildSector();
-			
-			// Floor/ceiling
-			props.FloorHeight = floorheight.GetResult(VALUE_MISMATCH);
-			props.CeilingHeight = ceilheight.GetResult(VALUE_MISMATCH);
-			props.Visibility = visibility.GetResult(VALUE_MISMATCH);
-
-			// Clamp values
-			if(props.Visibility != VALUE_MISMATCH)
-				props.Visibility = General.Clamp(props.Visibility, General.Map.FormatInterface.MinVisibility, General.Map.FormatInterface.MaxVisibility);
-
-			// Identification
-			props.HiTag = hitag.GetResult(VALUE_MISMATCH);
-			props.LoTag = lotag.GetResult(VALUE_MISMATCH);
-			props.Extra = extra.GetResult(VALUE_MISMATCH);
-
-			// Ceiling
-			props.CeilingTileIndex = ceiltex.GetResult(VALUE_MISMATCH);
-			props.CeilingOffsetX = ceiloffsetx.GetResult(VALUE_MISMATCH);
-			props.CeilingOffsetY = ceiloffsety.GetResult(VALUE_MISMATCH);
-			props.CeilingShade = ceilshade.GetResult(VALUE_MISMATCH);
-			props.CeilingPaletteIndex = ceilpalette.GetResult(VALUE_MISMATCH);
+			// Update slope flags?
 			float ceilslopedeg = ceilslope.GetResultFloat(VALUE_MISMATCH);
-			props.CeilingSlope = (ceilslopedeg != VALUE_MISMATCH ? Angle2D.DegToRad(ceilslopedeg + 90) : VALUE_MISMATCH);
+			if(ceilslopedeg != VALUE_MISMATCH)
+			{
+				ceilflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = (ceilslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
+			}
 
-			// Update slope flag?
-			if(ceilslopedeg != VALUE_MISMATCH && ceilslopedeg != 0)
-				ceilflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = CheckState.Checked;
-			else if(ceilslopedeg == 0)
-				ceilflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = CheckState.Unchecked;
-
-			// Clamp values
-			if(props.CeilingTileIndex != VALUE_MISMATCH) 
-				props.CeilingTileIndex = General.Clamp(props.CeilingTileIndex, General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
-			if(props.CeilingOffsetX != VALUE_MISMATCH)
-				props.CeilingOffsetX = General.Wrap(props.CeilingOffsetX, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.CeilingOffsetY != VALUE_MISMATCH)
-				props.CeilingOffsetY = General.Wrap(props.CeilingOffsetY, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.CeilingShade != VALUE_MISMATCH)
-				props.CeilingShade = General.Clamp(props.CeilingShade, General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
-			if(props.CeilingSlope != VALUE_MISMATCH)
-				props.CeilingSlope = General.Clamp(props.CeilingSlope, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
-
-			// Floor
-			props.FloorTileIndex = floortex.GetResult(VALUE_MISMATCH);
-			props.FloorOffsetX = flooroffsetx.GetResult(VALUE_MISMATCH);
-			props.FloorOffsetY = flooroffsety.GetResult(VALUE_MISMATCH);
-			props.FloorShade = floorshade.GetResult(VALUE_MISMATCH);
-			props.FloorPaletteIndex = floorpalette.GetResult(VALUE_MISMATCH);
 			float floorslopedeg = floorslope.GetResultFloat(VALUE_MISMATCH);
-			props.FloorSlope = (floorslopedeg != VALUE_MISMATCH ? Angle2D.DegToRad(floorslopedeg + 90) : VALUE_MISMATCH);
-
-			// Update slope flag?
-			if(floorslopedeg != VALUE_MISMATCH && floorslopedeg != 0) 
-				floorflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = CheckState.Checked;
-			else if(floorslopedeg == 0)
-				floorflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = CheckState.Unchecked;
-
-			// Clamp values
-			if(props.FloorTileIndex != VALUE_MISMATCH)
-				props.FloorTileIndex = General.Clamp(props.FloorTileIndex, General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
-			if(props.FloorOffsetX != VALUE_MISMATCH)
-				props.FloorOffsetX = General.Wrap(props.FloorOffsetX, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.FloorOffsetY != VALUE_MISMATCH)
-				props.FloorOffsetY = General.Wrap(props.FloorOffsetY, General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
-			if(props.FloorShade != VALUE_MISMATCH)
-				props.FloorShade = General.Clamp(props.FloorShade, General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
-			if(props.FloorSlope != VALUE_MISMATCH)
-				props.FloorSlope = General.Clamp(props.FloorSlope, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
+			if(floorslopedeg != VALUE_MISMATCH)
+			{
+				floorflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = (floorslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
+			}
 
 			// Go for all sectors
 			foreach(Sector s in sectors)
 			{
 				// Floor/ceiling
-				if(props.FloorHeight != VALUE_MISMATCH) s.FloorHeight = props.FloorHeight;
-				if(props.CeilingHeight != VALUE_MISMATCH) s.CeilingHeight = props.CeilingHeight;
-				if(props.Visibility != VALUE_MISMATCH) s.Visibility = props.Visibility;
-
-				// Identification
-				if(props.HiTag != VALUE_MISMATCH) s.HiTag = props.HiTag;
-				if(props.LoTag != VALUE_MISMATCH) s.LoTag = props.LoTag;
-				if(props.Extra != VALUE_MISMATCH) s.Extra = props.Extra;
+				s.FloorHeight = floorheight.GetResult(s.FloorHeight);
+				s.CeilingHeight = ceilheight.GetResult(s.CeilingHeight);
+				s.Visibility = visibility.GetResult(s.Visibility);
 
 				// Ceiling
 				foreach(KeyValuePair<string, CheckState> group in ceilflagsstate)
@@ -360,12 +296,12 @@ namespace mxd.DukeBuilder.Windows
 					}
 				}
 
-				if(props.CeilingTileIndex != VALUE_MISMATCH) s.CeilingTileIndex = props.CeilingTileIndex;
-				if(props.CeilingOffsetX != VALUE_MISMATCH) s.CeilingOffsetX = props.CeilingOffsetX;
-				if(props.CeilingOffsetY != VALUE_MISMATCH) s.CeilingOffsetY = props.CeilingOffsetY;
-				if(props.CeilingShade != VALUE_MISMATCH) s.CeilingShade = props.CeilingShade;
-				if(props.CeilingPaletteIndex != VALUE_MISMATCH) s.CeilingPaletteIndex = props.CeilingPaletteIndex;
-				if(props.CeilingSlope != VALUE_MISMATCH) s.CeilingSlope = props.CeilingSlope;
+				s.CeilingTileIndex = General.Clamp(ceiltex.GetResult(s.CeilingTileIndex), General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
+				s.CeilingOffsetX = General.Wrap(ceiloffsetx.GetResult(s.CeilingOffsetX), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				s.CeilingOffsetY = General.Wrap(ceiloffsety.GetResult(s.CeilingOffsetY), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				s.CeilingShade = General.Clamp(ceilshade.GetResult(s.CeilingShade), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+				s.CeilingPaletteIndex = ceilpalette.GetResult(s.CeilingPaletteIndex);
+				s.CeilingSlope = General.Clamp(Angle2D.DegToRad(ceilslope.GetResultFloat(Angle2D.RadToDeg(s.CeilingSlope) - 90) + 90), General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
 
 				// Floor
 				foreach(KeyValuePair<string, CheckState> group in floorflagsstate)
@@ -377,12 +313,17 @@ namespace mxd.DukeBuilder.Windows
 					}
 				}
 
-				if(props.FloorTileIndex != VALUE_MISMATCH) s.FloorTileIndex = props.FloorTileIndex;
-				if(props.FloorOffsetX != VALUE_MISMATCH) s.FloorOffsetX = props.FloorOffsetX;
-				if(props.FloorOffsetY != VALUE_MISMATCH) s.FloorOffsetY = props.FloorOffsetY;
-				if(props.FloorShade != VALUE_MISMATCH) s.FloorShade = props.FloorShade;
-				if(props.FloorPaletteIndex != VALUE_MISMATCH) s.FloorPaletteIndex = props.FloorPaletteIndex;
-				if(props.FloorSlope != VALUE_MISMATCH) s.FloorSlope = props.FloorSlope;
+				s.FloorTileIndex = General.Clamp(floortex.GetResult(s.FloorTileIndex), General.Map.FormatInterface.MinTileIndex, General.Map.FormatInterface.MaxTileIndex);
+				s.FloorOffsetX = General.Wrap(flooroffsetx.GetResult(s.FloorOffsetX), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				s.FloorOffsetY = General.Wrap(flooroffsety.GetResult(s.FloorOffsetY), General.Map.FormatInterface.MinImageOffset, General.Map.FormatInterface.MaxImageOffset);
+				s.FloorShade = General.Clamp(floorshade.GetResult(s.FloorShade), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+				s.FloorPaletteIndex = floorpalette.GetResult(s.FloorPaletteIndex);
+				s.FloorSlope = General.Clamp(Angle2D.DegToRad(floorslope.GetResultFloat(Angle2D.RadToDeg(s.FloorSlope) - 90) + 90), General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
+
+				// Identification
+				s.HiTag = hitag.GetResult(s.HiTag);
+				s.LoTag = lotag.GetResult(s.LoTag);
+				s.Extra = extra.GetResult(s.Extra);
 			}
 			
 			// Update the used textures
@@ -415,10 +356,10 @@ namespace mxd.DukeBuilder.Windows
 		}
 
 		// Help
-		private void SectorEditForm_HelpRequested(object sender, HelpEventArgs hlpevent)
+		private void SectorEditForm_HelpRequested(object sender, HelpEventArgs e)
 		{
 			General.ShowHelp("w_sectoredit.html");
-			hlpevent.Handled = true;
+			e.Handled = true;
 		}
 
 		#endregion

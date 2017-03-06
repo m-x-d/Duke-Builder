@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using mxd.DukeBuilder.Controls;
 using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.Map;
 
@@ -59,11 +60,8 @@ namespace mxd.DukeBuilder.Windows
 			this.vertices = vertices;
 			if(vertices.Count > 1) this.Text = "Edit vertices (" + vertices.Count + ")";
 
-			// Get first vertex
-			Vertex vc = General.GetFirst(vertices);
-
-			// Position
-			var pos = vc.Position;
+			// Get first vertex position
+			var pos = General.GetFirst(vertices).Position;
 
 			// Go for all vertices
 			foreach(Vertex v in vertices)
@@ -75,8 +73,8 @@ namespace mxd.DukeBuilder.Windows
 			}
 
 			// Update interface
-			if(pos.x != VALUE_MISMATCH) positionx.Text = pos.x.ToString();
-			if(pos.y != VALUE_MISMATCH) positiony.Text = (-pos.y).ToString();
+			if(pos.x != VALUE_MISMATCH) posx.Text = pos.x.ToString();
+			if(pos.y != VALUE_MISMATCH) posy.Text = (-pos.y).ToString();
 		}
 		
 		#endregion
@@ -89,19 +87,17 @@ namespace mxd.DukeBuilder.Windows
 			string undodesc = "vertex";
 
 			// Verify the coordinates
-			var pos = new Vector2D(positionx.GetResultFloat(0.0f), -positiony.GetResultFloat(0.0f));
-			if((pos.x < General.Map.FormatInterface.MinCoordinate) || (pos.x > General.Map.FormatInterface.MaxCoordinate) ||
-			   (pos.y < General.Map.FormatInterface.MinCoordinate) || (pos.y > General.Map.FormatInterface.MaxCoordinate))
+			int px = posx.GetResult(0);
+			int py = -posy.GetResult(0);
+			if((px < General.Map.FormatInterface.MinCoordinate) || (px > General.Map.FormatInterface.MaxCoordinate) ||
+			   (py < General.Map.FormatInterface.MinCoordinate) || (py > General.Map.FormatInterface.MaxCoordinate))
 			{
 				General.ShowWarningMessage("Vertex coordinates must be between " + General.Map.FormatInterface.MinCoordinate + " and " + General.Map.FormatInterface.MaxCoordinate + ".", MessageBoxButtons.OK);
 				return;
 			}
 
-			// Get coordinates again using invalid value as a default...
-			pos = new Vector2D(positionx.GetResultFloat(VALUE_MISMATCH), positiony.GetResultFloat(VALUE_MISMATCH));
-
 			// Skip when both fields have mixed values
-			if(pos.x != VALUE_MISMATCH || pos.y != VALUE_MISMATCH)
+			if(posx.ApplyMode != NumericTextboxApplyMode.NO_VALUE || posy.ApplyMode != NumericTextboxApplyMode.NO_VALUE)
 			{
 				// Make undo
 				if(vertices.Count > 1) undodesc = vertices.Count + " vertices";
@@ -111,8 +107,7 @@ namespace mxd.DukeBuilder.Windows
 				foreach(Vertex v in vertices)
 				{
 					// Apply position
-					v.Move(new Vector2D((pos.x == VALUE_MISMATCH ? v.Position.x : pos.x),
-										(pos.y == VALUE_MISMATCH ? v.Position.y : -pos.y)));
+					v.Move(new Vector2D(posx.GetResultFloat(v.Position.x), -posy.GetResultFloat(-v.Position.y)));
 				}
 
 				// Done

@@ -31,8 +31,8 @@ namespace mxd.DukeBuilder.Windows
 			System.Windows.Forms.Label label1;
 			System.Windows.Forms.Label label6;
 			this.groupposition = new System.Windows.Forms.GroupBox();
-			this.positiony = new mxd.DukeBuilder.Controls.ButtonsNumericTextbox();
-			this.positionx = new mxd.DukeBuilder.Controls.ButtonsNumericTextbox();
+			this.posy = new mxd.DukeBuilder.Controls.ButtonsNumericTextbox();
+			this.posx = new mxd.DukeBuilder.Controls.ButtonsNumericTextbox();
 			this.cancel = new System.Windows.Forms.Button();
 			this.apply = new System.Windows.Forms.Button();
 			label1 = new System.Windows.Forms.Label();
@@ -62,8 +62,8 @@ namespace mxd.DukeBuilder.Windows
 			// 
 			this.groupposition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.groupposition.Controls.Add(this.positiony);
-			this.groupposition.Controls.Add(this.positionx);
+			this.groupposition.Controls.Add(this.posy);
+			this.groupposition.Controls.Add(this.posx);
 			this.groupposition.Controls.Add(label1);
 			this.groupposition.Controls.Add(label6);
 			this.groupposition.Location = new System.Drawing.Point(12, 12);
@@ -75,27 +75,27 @@ namespace mxd.DukeBuilder.Windows
 			// 
 			// positiony
 			// 
-			this.positiony.AllowDecimal = false;
-			this.positiony.AllowNegative = true;
-			this.positiony.AllowRelative = true;
-			this.positiony.ButtonStep = 1;
-			this.positiony.Location = new System.Drawing.Point(183, 19);
-			this.positiony.Name = "positiony";
-			this.positiony.Size = new System.Drawing.Size(90, 24);
-			this.positiony.StepValues = null;
-			this.positiony.TabIndex = 25;
+			this.posy.AllowDecimal = false;
+			this.posy.AllowNegative = true;
+			this.posy.AllowRelative = true;
+			this.posy.ButtonStep = 1;
+			this.posy.Location = new System.Drawing.Point(183, 19);
+			this.posy.Name = "posy";
+			this.posy.Size = new System.Drawing.Size(90, 24);
+			this.posy.StepValues = null;
+			this.posy.TabIndex = 25;
 			// 
 			// positionx
 			// 
-			this.positionx.AllowDecimal = false;
-			this.positionx.AllowNegative = true;
-			this.positionx.AllowRelative = true;
-			this.positionx.ButtonStep = 1;
-			this.positionx.Location = new System.Drawing.Point(54, 19);
-			this.positionx.Name = "positionx";
-			this.positionx.Size = new System.Drawing.Size(90, 24);
-			this.positionx.StepValues = null;
-			this.positionx.TabIndex = 24;
+			this.posx.AllowDecimal = false;
+			this.posx.AllowNegative = true;
+			this.posx.AllowRelative = true;
+			this.posx.ButtonStep = 1;
+			this.posx.Location = new System.Drawing.Point(54, 19);
+			this.posx.Name = "posx";
+			this.posx.Size = new System.Drawing.Size(90, 24);
+			this.posx.StepValues = null;
+			this.posx.TabIndex = 24;
 			// 
 			// cancel
 			// 
@@ -151,7 +151,7 @@ namespace mxd.DukeBuilder.Windows
 		private System.Windows.Forms.Button cancel;
 		private System.Windows.Forms.Button apply;
 		private System.Windows.Forms.GroupBox groupposition;
-		private mxd.DukeBuilder.Controls.ButtonsNumericTextbox positiony;
-		private mxd.DukeBuilder.Controls.ButtonsNumericTextbox positionx;
+		private mxd.DukeBuilder.Controls.ButtonsNumericTextbox posy;
+		private mxd.DukeBuilder.Controls.ButtonsNumericTextbox posx;
 	}
 }
