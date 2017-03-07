@@ -144,12 +144,6 @@ namespace mxd.DukeBuilder.EditModes
 		
 		#region ================== Methods
 		
-		// This calculates brightness level
-		/*internal int CalculateBrightness(int level)
-		{
-			return renderer.CalculateBrightness(level);
-		}*/
-		
 		// This adds a selected object
 		internal void AddSelectedObject(IVisualEventReceiver obj)
 		{

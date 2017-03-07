@@ -158,21 +158,21 @@ namespace mxd.DukeBuilder.Map
 		public Plane FloorPlane { get { UpdateFloorPlane(); return floorplane; } }
 
 		//mxd. Cached flags
-		public bool CeilingParallaxed { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorParallaxedFlag); } }
+		public bool CeilingParallaxed { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.Parallaxed); } }
 		public bool CeilingSloped { get { UpdateCeilingPlane(); return ceilingsloped; } }
-		public bool CeilingSwapXY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorSwapXYFlag); } }
-		public bool CeilingFlipX { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlipXFlag); } }
-		public bool CeilingFlipY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlipYFlag); } }
-		public bool CeilingRelativeAlignment { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorRelativeAlignmentFlag); } }
-		public bool CeilingTextureExpansion { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorTextureExpansionFlag); } }
+		public bool CeilingSwapXY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.SwapXY); } }
+		public bool CeilingFlipX { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.FlipX); } }
+		public bool CeilingFlipY { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.FlipY); } }
+		public bool CeilingRelativeAlignment { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.RelativeAlignment); } }
+		public bool CeilingTextureExpansion { get { return CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.TextureExpansion); } }
 
-		public bool FloorParallaxed { get { return CheckFloorFlag(General.Map.FormatInterface.SectorParallaxedFlag); } }
+		public bool FloorParallaxed { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.Parallaxed); } }
 		public bool FloorSloped { get { UpdateFloorPlane(); return floorsloped; } }
-		public bool FloorSwapXY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorSwapXYFlag); } }
-		public bool FloorFlipX { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlipXFlag); } }
-		public bool FloorFlipY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlipYFlag); } }
-		public bool FloorRelativeAlignment { get { return CheckFloorFlag(General.Map.FormatInterface.SectorRelativeAlignmentFlag); } }
-		public bool FloorTextureExpansion { get { return CheckFloorFlag(General.Map.FormatInterface.SectorTextureExpansionFlag); } }
+		public bool FloorSwapXY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.SwapXY); } }
+		public bool FloorFlipX { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.FlipX); } }
+		public bool FloorFlipY { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.FlipY); } }
+		public bool FloorRelativeAlignment { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.RelativeAlignment); } }
+		public bool FloorTextureExpansion { get { return CheckFloorFlag(General.Map.FormatInterface.SectorFlags.TextureExpansion); } }
 		
 		#endregion
 
@@ -829,7 +829,7 @@ namespace mxd.DukeBuilder.Map
 		{
 			if(ceilingplaneupdateneeded)
 			{
-				ceilingsloped = (CheckCeilingFlag(General.Map.FormatInterface.SectorSlopeFlag) && ceilingslope != 0);
+				ceilingsloped = (CheckCeilingFlag(General.Map.FormatInterface.SectorFlags.Sloped) && ceilingslope != 0);
 				ceilingplane = (ceilingsloped ? GetSlopePlane(ceilingslope, ceilingheight, false) : new Plane(new Vector3D(0, 0, -1), ceilingheight));
 				ceilingplaneupdateneeded = false;
 
@@ -843,7 +843,7 @@ namespace mxd.DukeBuilder.Map
 		{
 			if(floorplaneupdateneeded)
 			{
-				floorsloped = (CheckFloorFlag(General.Map.FormatInterface.SectorSlopeFlag) && floorslope != 0);
+				floorsloped = (CheckFloorFlag(General.Map.FormatInterface.SectorFlags.Sloped) && floorslope != 0);
 				floorplane = (floorsloped ? GetSlopePlane(floorslope, floorheight, true) : new Plane(new Vector3D(0, 0, 1), -floorheight));
 				floorplaneupdateneeded = false;
 

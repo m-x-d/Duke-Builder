@@ -677,6 +677,7 @@ namespace mxd.DukeBuilder.Data
 				foreach(Thing t in General.Map.Map.Things)
 				{
 					// Add used textures to dictionary
+					//TODO: mark all sprite rotations as used!
 					usedimages[t.TileIndex] = 0;
 				}
 

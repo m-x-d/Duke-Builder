@@ -53,25 +53,8 @@ namespace mxd.DukeBuilder.IO
 		int TopBoundary { get; }
 		int BottomBoundary { get; }
 
-		// Wall flags
-		string WallBlockHitscanFlag { get; }
-		string WallBlockMoveFlag { get; }
-		string WallSwapBottomImageFlag { get; }
-		string WallAlignImageToBottomFlag { get; }
-		string WallFlipXFlag { get; }
-		string WallFlipYFlag { get; }
-		string WallMasked { get; }
-		string WallMaskedSolid { get; }
-		string WallSemiTransparent { get; }
-		string WallTransparent { get; }
-
-		// Sector flags
-		string SectorTextureExpansionFlag { get; } // 1 texture pixel == 16 mu when unset, 8 mu when set
-		string SectorRelativeAlignmentFlag { get; } // When set, texture will be aligned to the first wall
-		string SectorSlopeFlag { get; } 
-		string SectorParallaxedFlag { get; } 
-		string SectorSwapXYFlag { get; } 
-		string SectorFlipXFlag { get; }
-		string SectorFlipYFlag { get; }
+		ISectorFlags SectorFlags { get; }
+		IWallFlags WallFlags { get; }
+		ISpriteFlags SpriteFlags { get; }
 	}
 }

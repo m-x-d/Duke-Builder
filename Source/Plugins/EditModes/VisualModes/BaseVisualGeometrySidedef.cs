@@ -317,7 +317,7 @@ namespace mxd.DukeBuilder.EditModes
 		// Toggle lower-unpegged
 		public virtual void OnToggleBottomAlignment()
 		{
-			mode.ApplyBottomAlignment(!this.Sidedef.IsFlagSet(General.Map.FormatInterface.WallAlignImageToBottomFlag));
+			mode.ApplyBottomAlignment(!this.Sidedef.IsFlagSet(General.Map.FormatInterface.WallFlags.AlignImageToBottom));
 		}
 
 		// This sets the Lower Unpegged flag
@@ -328,14 +328,14 @@ namespace mxd.DukeBuilder.EditModes
 				// Remove flag
 				mode.CreateUndo("Remove bottom-aligned setting");
 				mode.SetActionResult("Removed bottom-aligned setting.");
-				Sidedef.SetFlag(General.Map.FormatInterface.WallAlignImageToBottomFlag, false);
+				Sidedef.SetFlag(General.Map.FormatInterface.WallFlags.AlignImageToBottom, false);
 			}
 			else
 			{
 				// Add flag
 				mode.CreateUndo("Set bottom-aligned setting");
 				mode.SetActionResult("Set bottom-aligned setting.");
-				Sidedef.SetFlag(General.Map.FormatInterface.WallAlignImageToBottomFlag, true);
+				Sidedef.SetFlag(General.Map.FormatInterface.WallFlags.AlignImageToBottom, true);
 			}
 
 			// Update sidedef geometry
@@ -655,7 +655,7 @@ namespace mxd.DukeBuilder.EditModes
 				undoticket = mode.CreateUndo("Change wall shade");
 
 			// Apply shade
-			Sidedef.Shade = General.Clamp(Sidedef.Shade + (up ? -1 : 1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+			Sidedef.Shade = General.Clamp(Sidedef.Shade + (up ? 1 : -1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
 
 			mode.SetActionResult("Changed wall shade to " + Sidedef.Shade + ".");
 

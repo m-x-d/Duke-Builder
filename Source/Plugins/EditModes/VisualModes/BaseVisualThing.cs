@@ -24,7 +24,6 @@ using mxd.DukeBuilder.Map;
 using mxd.DukeBuilder.Rendering;
 using mxd.DukeBuilder.Geometry;
 using mxd.DukeBuilder.VisualModes;
-using mxd.DukeBuilder.Config;
 using mxd.DukeBuilder.Data;
 
 #endregion
@@ -33,11 +32,14 @@ namespace mxd.DukeBuilder.EditModes
 {
 	internal class BaseVisualThing : VisualThing, IVisualEventReceiver
 	{
+		private const float MINIMUM_RADIUS = 32f;
+		private const float MINIMUM_HEIGHT = 64f;
+		
 		#region ================== Variables
 
 		protected BaseVisualMode mode;
 		
-		private SpriteInfo info;
+		//private SpriteInfo info;
 		private bool isloaded;
 		private ImageData sprite;
 		private float cageradius2;
@@ -67,7 +69,7 @@ namespace mxd.DukeBuilder.EditModes
 			this.mode = mode;
 
 			// Find thing information
-			info = General.Map.Data.GetSpriteInfo(Thing.TileIndex);
+			//info = General.Map.Data.GetSpriteInfo(Thing.TileIndex);
 
 			// Find sprite texture
 			sprite = General.Map.Data.GetImageData(Thing.TileIndex);
@@ -80,51 +82,86 @@ namespace mxd.DukeBuilder.EditModes
 		// This builds the thing geometry. Returns false when nothing was created.
 		public virtual bool Setup()
 		{
-			PixelColor sectorcolor = new PixelColor(255, 255, 255, 255);
-			
 			// Must have a width and height!
-			if((info.Radius < 0.1f) || (info.Height < 0.1f)) return false;
+			float radius, height;
 
 			// Find the sector in which the thing resides
 			Thing.DetermineSector(mode.BlockMap);
 
 			if(sprite != null)
 			{
-				if(Thing.Sector != null)
+				//mxd. Transparency and brightness
+				int brightness;
+				if(Thing.SemiTransparent)
 				{
-					// Use sector brightness for color shading
-					byte brightness = (byte)General.Clamp(Thing.Sector.FloorShade, 0, 255);
-					sectorcolor = new PixelColor(255, brightness, brightness, brightness);
+					brightness = MapElement.CalculateBrightness(Thing.Shade, (byte)(Thing.Transparent ? 85 : 170));
+					this.RenderPass = RenderPass.Alpha;
 				}
-				
+				else
+				{
+					brightness = MapElement.CalculateBrightness(Thing.Shade);
+					this.RenderPass = RenderPass.Mask;
+				}
+
 				// Check if the texture is loaded
 				sprite.LoadImage();
 				isloaded = sprite.IsImageLoaded;
+
 				if(isloaded)
 				{
 					base.Texture = sprite;
 
-					// Determine sprite size and offset
-					float radius = sprite.Width * 0.5f;
-					float height = sprite.Height;
-					float offsetx = sprite.OffsetX - radius;
-					float offsety = sprite.OffsetY - height;
+					// Determine sprite size and offsets
+					bool flooraligned = Thing.FlatAligned;
+					bool wallaligned = Thing.WallAligned;
+					bool truecentered = Thing.TrueCentered;
 
-					// Scale by thing type/actor scale
-					// We do this after the offset x/y determination above, because that is entirely in sprite pixels space
-					/*radius *= info.SpriteScale.Width;
-					height *= info.SpriteScale.Height;
-					offsetx *= info.SpriteScale.Width;
-					offsety *= info.SpriteScale.Height;*/
+					float xratio = Thing.RepeatX * ((flooraligned && truecentered) ? 0.2f : 0.25f);
+					float yratio = Thing.RepeatY * 0.25f;
+
+					int xsize = (int)(sprite.Width * xratio);
+					int ysize = (int)(sprite.Height * yratio);
+
+					int tilexoff = Thing.OffsetX + sprite.OffsetX;
+					int tileyoff = Thing.OffsetY + sprite.OffsetY;
+
+					int xoff = (int)(tilexoff * xratio);
+					int yoff = (int)(tileyoff * yratio);
+
+					if(truecentered && !flooraligned) yoff -= ysize / 2; // Seems that centeryoff shenanigans in polymer_updatesprite.cpp do exactly the same thing...
+
+					bool xflip = Thing.FlipX;
+					bool yflip = Thing.FlipY;
+
+					// Initially set flipu and flipv.
+					bool flipu = (xflip ^ flooraligned);
+					bool flipv = (yflip && !flooraligned);
+
+					if(flipu) xoff = -xoff;
+					if(yflip && (flooraligned || wallaligned)) yoff = -yoff;
+
+					radius = xsize * 0.5f;
+					height = ysize;
 
 					// Make vertices
 					WorldVertex[] verts = new WorldVertex[6];
-					verts[0] = new WorldVertex(-radius + offsetx, 0.0f, 0.0f + offsety, sectorcolor.ToInt(), 0.0f, 1.0f);
-					verts[1] = new WorldVertex(-radius + offsetx, 0.0f, height + offsety, sectorcolor.ToInt(), 0.0f, 0.0f);
-					verts[2] = new WorldVertex(+radius + offsetx, 0.0f, height + offsety, sectorcolor.ToInt(), 1.0f, 0.0f);
+					verts[0] = new WorldVertex(-radius + xoff, 0.0f, yoff, brightness, 0.0f, 1.0f);
+					verts[1] = new WorldVertex(-radius + xoff, 0.0f, height + yoff, brightness, 0.0f, 0.0f);
+					verts[2] = new WorldVertex(radius + xoff, 0.0f, height + yoff, brightness, 1.0f, 0.0f);
 					verts[3] = verts[0];
 					verts[4] = verts[2];
-					verts[5] = new WorldVertex(+radius + offsetx, 0.0f, 0.0f + offsety, sectorcolor.ToInt(), 1.0f, 1.0f);
+					verts[5] = new WorldVertex(radius + xoff, 0.0f, yoff, brightness, 1.0f, 1.0f);
+
+					// Update UVs if needed
+					if(flipu || flipv)
+					{
+						for(int i = 0; i < 6; i++)
+						{
+							if(flipu) verts[i].u = (verts[i].u - 1.0f) * -1.0f;
+							if(flipv) verts[i].v = (verts[i].v - 1.0f) * -1.0f;
+						}
+					}
+
 					SetVertices(verts);
 				}
 				else
@@ -132,66 +169,53 @@ namespace mxd.DukeBuilder.EditModes
 					base.Texture = General.Map.Data.Hourglass3D;
 
 					// Determine sprite size
-					float radius = Math.Min(info.Radius, info.Height / 2f);
-					float height = Math.Min(info.Radius * 2f, info.Height);
+					radius = Math.Min(Texture.Width / 2f, Texture.Height / 2f);
+					height = Math.Min(Texture.Width, Texture.Height);
 
 					// Make vertices
 					WorldVertex[] verts = new WorldVertex[6];
-					verts[0] = new WorldVertex(-radius, 0.0f, 0.0f, sectorcolor.ToInt(), 0.0f, 1.0f);
-					verts[1] = new WorldVertex(-radius, 0.0f, height, sectorcolor.ToInt(), 0.0f, 0.0f);
-					verts[2] = new WorldVertex(+radius, 0.0f, height, sectorcolor.ToInt(), 1.0f, 0.0f);
+					verts[0] = new WorldVertex(-radius, 0.0f, 0.0f, brightness, 0.0f, 1.0f);
+					verts[1] = new WorldVertex(-radius, 0.0f, height, brightness, 0.0f, 0.0f);
+					verts[2] = new WorldVertex(+radius, 0.0f, height, brightness, 1.0f, 0.0f);
 					verts[3] = verts[0];
 					verts[4] = verts[2];
-					verts[5] = new WorldVertex(+radius, 0.0f, 0.0f, sectorcolor.ToInt(), 1.0f, 1.0f);
+					verts[5] = new WorldVertex(+radius, 0.0f, 0.0f, brightness, 1.0f, 1.0f);
 					SetVertices(verts);
 				}
+			}
+			else
+			{
+				// Use some default values...
+				radius = MINIMUM_RADIUS;
+				height = MINIMUM_HEIGHT;
+
+				SetVertices(new WorldVertex[0]);
 			}
 			
 			// Determine position
 			Vector3D pos = Thing.Position;
-			/*if(info.AbsoluteZ)
-			{
-				// Absolute Z position
-				pos.z = Thing.Position.z;
-			}
-			else if(info.Hangs)
-			{
-				// Hang from ceiling
-				if(Thing.Sector != null) pos.z = Thing.Sector.CeilHeight - info.Height;
-				if(Thing.Position.z > 0) pos.z -= Thing.Position.z;
+			
+			if(Thing.Sector != null) pos.z = Thing.Sector.FloorPlane.GetZ(Thing.Position.x, Thing.Position.y);
+			if(Thing.Position.z > 0) pos.z += Thing.Position.z;
 				
-				// Check if below floor
-				if((Thing.Sector != null) && (pos.z < Thing.Sector.FloorHeight))
-				{
-					// Put thing on the floor
-					pos.z = Thing.Sector.FloorHeight;
-				}
+			// Check if above ceiling
+			if((Thing.Sector != null) && ((pos.z + height) > Thing.Sector.CeilingHeight))
+			{
+				// Put thing against ceiling
+				pos.z = Thing.Sector.CeilingHeight - height;
 			}
-			else
-			{*/
-				// Stand on floor
-				if(Thing.Sector != null) pos.z = Thing.Sector.FloorHeight;
-				if(Thing.Position.z > 0) pos.z += Thing.Position.z;
-				
-				// Check if above ceiling
-				if((Thing.Sector != null) && ((pos.z + info.Height) > Thing.Sector.CeilingHeight))
-				{
-					// Put thing against ceiling
-					pos.z = Thing.Sector.CeilingHeight - info.Height;
-				}
-			//}
 			
 			// Apply settings
 			SetPosition(pos);
-			SetCageSize(info.Radius, info.Height);
+			SetCageSize(Math.Max(radius, MINIMUM_RADIUS), Math.Max(height, MINIMUM_HEIGHT));
 			SetCageColor(Thing.Color);
 
 			// Keep info for object picking
-			cageradius2 = info.Radius * Angle2D.SQRT2;
+			cageradius2 = radius * Angle2D.SQRT2;
 			cageradius2 = cageradius2 * cageradius2;
 			pos2d = pos;
-			boxp1 = new Vector3D(pos.x - info.Radius, pos.y - info.Radius, pos.z);
-			boxp2 = new Vector3D(pos.x + info.Radius, pos.y + info.Radius, pos.z + info.Height);
+			boxp1 = new Vector3D(pos.x - radius, pos.y - radius, pos.z);
+			boxp2 = new Vector3D(pos.x + radius, pos.y + radius, pos.z + height);
 			
 			// Done
 			changed = false;
@@ -221,7 +245,7 @@ namespace mxd.DukeBuilder.EditModes
 		public void Rebuild()
 		{
 			// Find thing information
-			info = General.Map.Data.GetSpriteInfo(Thing.TileIndex);
+			//info = General.Map.Data.GetSpriteInfo(Thing.TileIndex);
 
 			// Find sprite image
 			sprite = General.Map.Data.GetImageData(Thing.TileIndex);
@@ -434,7 +458,7 @@ namespace mxd.DukeBuilder.EditModes
 			if((General.Map.UndoRedo.NextUndo == null) || (General.Map.UndoRedo.NextUndo.TicketID != undoticket))
 				undoticket = mode.CreateUndo("Change sprite shade");
 
-			Thing.Shade = General.Clamp(Thing.Shade + (up ? -1 : 1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+			Thing.Shade = General.Clamp(Thing.Shade + (up ? 1 : -1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
 			mode.SetActionResult("Changed sprite shade to " + Thing.Shade + ".");
 			this.Changed = true;
 		}

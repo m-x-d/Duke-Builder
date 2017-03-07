@@ -86,16 +86,16 @@ namespace mxd.DukeBuilder.Map
 		public int Extra { get { return extra; } set { BeforePropsChange(); extra = value; if((extra < General.Map.FormatInterface.MinExtra) || (extra > General.Map.FormatInterface.MaxExtra)) throw new ArgumentOutOfRangeException("Extra", "Invalid extra number"); } }
 
 		//mxd. Quick access flags
-		public bool BlockHitscan { get { return CheckFlag(General.Map.FormatInterface.WallBlockHitscanFlag); } }
-		public bool BlockMove { get { return CheckFlag(General.Map.FormatInterface.WallBlockMoveFlag); } }
-		public bool ImageFlipX { get { return CheckFlag(General.Map.FormatInterface.WallFlipXFlag); } }
-		public bool ImageFlipY { get { return CheckFlag(General.Map.FormatInterface.WallFlipYFlag); } }
-		public bool SwapBottomImage { get { return CheckFlag(General.Map.FormatInterface.WallSwapBottomImageFlag); } }
-		public bool AlignImageToBottom { get { return CheckFlag(General.Map.FormatInterface.WallAlignImageToBottomFlag); } }
-		public bool Masked { get { return CheckFlag(General.Map.FormatInterface.WallMasked); } }
-		public bool MaskedSolid { get { return CheckFlag(General.Map.FormatInterface.WallMaskedSolid); } }
-		public bool SemiTransparent { get { return CheckFlag(General.Map.FormatInterface.WallSemiTransparent); } }
-		public bool Transparent { get { return CheckFlag(General.Map.FormatInterface.WallTransparent); } }
+		public bool BlockHitscan { get { return CheckFlag(General.Map.FormatInterface.WallFlags.BlockHitscan); } }
+		public bool BlockMove { get { return CheckFlag(General.Map.FormatInterface.WallFlags.BlockMove); } }
+		public bool ImageFlipX { get { return CheckFlag(General.Map.FormatInterface.WallFlags.FlipX); } }
+		public bool ImageFlipY { get { return CheckFlag(General.Map.FormatInterface.WallFlags.FlipY); } }
+		public bool SwapBottomImage { get { return CheckFlag(General.Map.FormatInterface.WallFlags.SwapBottomImage); } }
+		public bool AlignImageToBottom { get { return CheckFlag(General.Map.FormatInterface.WallFlags.AlignImageToBottom); } }
+		public bool Masked { get { return CheckFlag(General.Map.FormatInterface.WallFlags.Masked); } }
+		public bool MaskedSolid { get { return CheckFlag(General.Map.FormatInterface.WallFlags.MaskedSolid); } }
+		public bool SemiTransparent { get { return CheckFlag(General.Map.FormatInterface.WallFlags.SemiTransparent); } }
+		public bool Transparent { get { return CheckFlag(General.Map.FormatInterface.WallFlags.Transparent); } }
 
 		// Clone
 		internal int SerializedIndex;
@@ -112,6 +112,8 @@ namespace mxd.DukeBuilder.Map
 			this.listindex = listindex;
 			this.flags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.extra = -1;
+			this.repeatx = 8;
+			this.repeaty = 8;
 			
 			// Attach linedef
 			this.linedef = l;
@@ -297,47 +299,6 @@ namespace mxd.DukeBuilder.Map
 			return (!string.IsNullOrEmpty(flagname) && flags.ContainsKey(flagname) && flags[flagname]);
 		}
 		
-		// This removes textures that are not required
-		/*public void RemoveUnneededTextures(bool removemiddle)
-		{
-			RemoveUnneededTextures(removemiddle, false);
-		}*/
-		
-		// This removes textures that are not required
-		/*public void RemoveUnneededTextures(bool removemiddle, bool force)
-		{
-			BeforePropsChange();
-			
-			// The middle texture can be removed regardless of any sector tag or linedef action
-			if(!MiddleRequired() && removemiddle)
-			{
-				this.texnamemid = "-";
-				this.longtexnamemid = MapSet.EmptyLongName;
-				General.Map.IsChanged = true;
-			}
-
-			// Check if the line or sectors have no action or tags because
-			// if they do, any texture on this side could be needed
-			if(((linedef.Tag <= 0) && (linedef.Action == 0) && (sector.Tag <= 0) &&
-			    ((Other == null) || (Other.sector.Tag <= 0))) ||
-			   force)
-			{
-				if(!HighRequired())
-				{
-					this.texnamehigh = "-";
-					this.longtexnamehigh = MapSet.EmptyLongName;
-					General.Map.IsChanged = true;
-				}
-
-				if(!LowRequired())
-				{
-					this.texnamelow = "-";
-					this.longtexnamelow = MapSet.EmptyLongName;
-					General.Map.IsChanged = true;
-				}
-			}
-		}*/
-		
 		/// <summary>
 		/// This checks if a texture is required
 		/// </summary>
@@ -498,35 +459,22 @@ namespace mxd.DukeBuilder.Map
 			this.extra = src.Extra;
 		}
 
-		// This sets texture
-		/*public void SetTextureHigh(string name)
+		//mxd. fixrepeats impl
+		internal void UpdateRepeats()
 		{
-			BeforePropsChange();
-			
-			texnamehigh = name;
-			longtexnamehigh = Lump.MakeLongName(name);
-			General.Map.IsChanged = true;
-		}
+			// Update repeatx
+			repeatx = (int)(linedef.Length * repeaty / 1024);
 
-		// This sets texture
-		public void SetTextureMid(string name)
-		{
-			BeforePropsChange();
-			
-			texnamemid = name;
-			longtexnamemid = Lump.MakeLongName(name);
-			General.Map.IsChanged = true;
-		}
+			// getlenbyrep impl
+			/*int lenrepquot = (int)(linedef.Length * 4096 / (repeatx > 0 ? repeatx : 1));  
 
-		// This sets texture
-		public void SetTextureLow(string name)
-		{
-			BeforePropsChange();
-			
-			texnamelow = name;
-			longtexnamelow = Lump.MakeLongName(name);
-			General.Map.IsChanged = true;
-		}*/
+			// fixxrepeat impl 
+			if(lenrepquot != 0) 
+			{
+				int res = (int)((linedef.Length * 4096 + 2048) / lenrepquot);
+				repeatx = General.Clamp(res, 1, 255);
+			}*/
+		}
 		
 		#endregion
 	}

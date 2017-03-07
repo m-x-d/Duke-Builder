@@ -59,32 +59,16 @@ namespace mxd.DukeBuilder.IO
 		public override int MaxSpriteAngle { get { return 2047; } }
 		public override int MinSpriteAngle { get { return 0; } }
 
-		// Wall flags we need to be aware of
-		public override string WallBlockHitscanFlag { get { return "64"; } }
-		public override string WallBlockMoveFlag { get { return "1"; } }
-		public override string WallSwapBottomImageFlag { get { return "2"; } }
-		public override string WallAlignImageToBottomFlag { get { return "4"; } }
-		public override string WallFlipXFlag { get { return "8"; } }
-		public override string WallFlipYFlag { get { return "256"; } }
-		public override string WallMasked { get { return "16"; } }
-		public override string WallMaskedSolid { get { return "32"; } }
-		public override string WallSemiTransparent { get { return "128"; } }
-		public override string WallTransparent { get { return "512"; } }
-
-		// Sector flags need to be aware of
-		public override string SectorTextureExpansionFlag { get { return "8"; } }
-		public override string SectorRelativeAlignmentFlag { get { return "64"; } }
-		public override string SectorSlopeFlag { get { return "2"; } }
-		public override string SectorParallaxedFlag { get { return "1"; } }
-		public override string SectorSwapXYFlag { get { return "4"; } }
-		public override string SectorFlipXFlag { get { return "16"; } }
-		public override string SectorFlipYFlag { get { return "32"; } }
-
 		#endregion
 
 		#region ================== Constructor
 
-		public DukeMapSetIO(MapManager manager) : base(manager) { }
+		public DukeMapSetIO(MapManager manager) : base(manager)
+		{
+			sectorflags = new DukeSectorFlags();
+			wallflags = new DukeWallFlags();
+			spriteflags = new DukeSpriteFlags();
+		}
 
 		#endregion
 

@@ -269,13 +269,13 @@ namespace mxd.DukeBuilder.Windows
 			float ceilslopedeg = ceilslope.GetResultFloat(VALUE_MISMATCH);
 			if(ceilslopedeg != VALUE_MISMATCH)
 			{
-				ceilflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = (ceilslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
+				ceilflagsstate[General.Map.FormatInterface.SectorFlags.Sloped] = (ceilslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
 			}
 
 			float floorslopedeg = floorslope.GetResultFloat(VALUE_MISMATCH);
 			if(floorslopedeg != VALUE_MISMATCH)
 			{
-				floorflagsstate[General.Map.FormatInterface.SectorSlopeFlag] = (floorslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
+				floorflagsstate[General.Map.FormatInterface.SectorFlags.Sloped] = (floorslopedeg != 0 ? CheckState.Checked : CheckState.Unchecked);
 			}
 
 			// Go for all sectors

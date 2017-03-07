@@ -34,6 +34,11 @@ namespace mxd.DukeBuilder.IO
 		// Map manager
 		protected MapManager manager;
 
+		//mxd. Known flags
+		protected ISectorFlags sectorflags;
+		protected IWallFlags wallflags;
+		protected ISpriteFlags spriteflags;
+
 		#endregion
 
 		#region ================== Properties
@@ -72,24 +77,9 @@ namespace mxd.DukeBuilder.IO
 		public virtual int TopBoundary { get { return MaxCoordinate; } }
 		public virtual int BottomBoundary { get { return MinCoordinate; } }
 
-		public abstract string WallBlockHitscanFlag { get; }
-		public abstract string WallBlockMoveFlag { get; }
-		public abstract string WallSwapBottomImageFlag { get; }
-		public abstract string WallAlignImageToBottomFlag { get; }
-		public abstract string WallFlipXFlag { get; }
-		public abstract string WallFlipYFlag { get; }
-		public abstract string WallMasked { get; }
-		public abstract string WallMaskedSolid { get; }
-		public abstract string WallSemiTransparent { get; }
-		public abstract string WallTransparent { get; }
-
-		public abstract string SectorTextureExpansionFlag { get; }
-		public abstract string SectorRelativeAlignmentFlag { get; }
-		public abstract string SectorSlopeFlag { get; }
-		public abstract string SectorParallaxedFlag { get; }
-		public abstract string SectorSwapXYFlag { get; }
-		public abstract string SectorFlipXFlag { get; }
-		public abstract string SectorFlipYFlag { get; }
+		public ISectorFlags SectorFlags { get { return sectorflags; } }
+		public IWallFlags WallFlags { get { return wallflags; } }
+		public ISpriteFlags SpriteFlags { get { return spriteflags; } }
 
 		#endregion
 

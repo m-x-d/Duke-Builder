@@ -49,8 +49,8 @@ namespace mxd.DukeBuilder.Config
 		//private long spritelongname;
 		private int color;
 		//private bool arrow;
-		private float radius;
-		private float height;
+		//private float radius;
+		//private float height;
 		//private bool hangs;
 		//private int blocking;
 		//private int errorcheck;
@@ -78,8 +78,8 @@ namespace mxd.DukeBuilder.Config
 		//public long SpriteLongName { get { return spritelongname; } }
 		public int Color { get { return color; } }
 		//public bool Arrow { get { return arrow; } }
-		public float Radius { get { return radius; } }
-		public float Height { get { return height; } }
+		//public float Radius { get { return radius; } }
+		//public float Height { get { return height; } }
 		//public bool Hangs { get { return hangs; } }
 		//public int Blocking { get { return blocking; } }
 		//public int ErrorCheck { get { return errorcheck; } }
@@ -109,8 +109,8 @@ namespace mxd.DukeBuilder.Config
 			this.category = null;
 			this.title = "Sprite";
 			this.color = 0;
-			this.radius = 10f;
-			this.height = 20f;
+			//this.radius = 10f;
+			//this.height = 20f;
 			this.fixedsize = false;
 			this.isknown = false;
 		}
@@ -130,8 +130,8 @@ namespace mxd.DukeBuilder.Config
 			//this.sprite = cfg.ReadSetting("thingtypes." + cat.Name + "." + key + ".sprite", cat.Sprite);
 			this.color = cfg.ReadSetting(key + "color", cat.Color);
 			//this.arrow = (cfg.ReadSetting("thingtypes." + cat.Name + "." + key + ".arrow", cat.Arrow) != 0);
-			this.radius = cfg.ReadSetting(key + "width", cat.Radius);
-			this.height = cfg.ReadSetting(key + "height", cat.Height);
+			//this.radius = cfg.ReadSetting(key + "width", cat.Radius);
+			//this.height = cfg.ReadSetting(key + "height", cat.Height);
 			//this.hangs = (cfg.ReadSetting("thingtypes." + cat.Name + "." + key + ".hangs", cat.Hangs) != 0);
 			//this.blocking = cfg.ReadSetting("thingtypes." + cat.Name + "." + key + ".blocking", cat.Blocking);
 			//this.errorcheck = cfg.ReadSetting("thingtypes." + cat.Name + "." + key + ".error", cat.ErrorCheck);
@@ -165,7 +165,7 @@ namespace mxd.DukeBuilder.Config
 				//this.args[i] = new ArgumentInfo(cfg, "thingtypes." + cat.Name + "." + key, i, enums);
 			
 			// Safety
-			if(this.radius < 4f) this.radius = 8f;
+			//if(this.radius < 4f) this.radius = 8f;
 			
 			// Make long name for sprite lookup
 			/*if(this.sprite.Length <= 8)
@@ -193,8 +193,8 @@ namespace mxd.DukeBuilder.Config
 			//this.sprite = cat.Sprite;
 			this.color = cat.Color;
 			//this.arrow = (cat.Arrow != 0);
-			this.radius = cat.Radius;
-			this.height = cat.Height;
+			//this.radius = cat.Radius;
+			//this.height = cat.Height;
 			//this.hangs = (cat.Hangs != 0);
 			//this.blocking = cat.Blocking;
 			//this.errorcheck = cat.ErrorCheck;
@@ -203,7 +203,7 @@ namespace mxd.DukeBuilder.Config
 			//this.spritescale = new SizeF(cat.SpriteScale, cat.SpriteScale);
 
 			// Safety
-			if(this.radius < 4f) this.radius = 8f;
+			//if(this.radius < 4f) this.radius = 8f;
 			
 			// Make long name for sprite lookup
 			/*if(this.sprite.Length <= 8)

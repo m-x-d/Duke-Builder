@@ -30,6 +30,24 @@ namespace mxd.DukeBuilder.Map
 {
 	public sealed class Thing : SelectableElement
 	{
+		#region ================== Enums
+
+		public enum RenderMode
+		{
+			BILLBOARD,
+			FLAT,
+			WALL,
+		}
+
+		#endregion
+
+
+		#region ================== Constants
+
+		private const int MINIMUM_SIZE = 64;
+
+		#endregion
+
 		#region ================== Variables
 
 		// Map
@@ -53,7 +71,6 @@ namespace mxd.DukeBuilder.Map
 		private int offsetx;		// Centre sprite animations 
 		private int offsety;
 		private int status;			// ???
-		//private int anglebuild;		// Angle as entered / stored in file
 		private float anglerad;		// Angle in radians
 
 		private int owner; // ???
@@ -67,7 +84,7 @@ namespace mxd.DukeBuilder.Map
 		private float size;
 		private PixelColor color;
 		private bool fixedsize;
-		//private float iconoffset;	// Arrow or dot coordinate offset on the texture
+		private RenderMode displaymode; //mxd
 
 		#endregion
 
@@ -93,7 +110,6 @@ namespace mxd.DukeBuilder.Map
 		public int Status { get { return status; } set { BeforePropsChange(); status = value; } }
 		public float Angle { get { return anglerad; } set { BeforePropsChange(); anglerad = value; } }
 		public int AngleDeg { get { return (int)Math.Round(Angle2D.RadToDeg(anglerad)); } set { BeforePropsChange(); anglerad = Angle2D.DegToRad(value); } }
-		//public int AngleBuild { get { return anglebuild; } }
 
 		// ???
 		public int Owner { get { return owner; } set { BeforePropsChange(); owner = value; } }
@@ -108,7 +124,16 @@ namespace mxd.DukeBuilder.Map
 		public float Size { get { return size; } }
 		public PixelColor Color { get { return color; } }
 		public bool FixedSize { get { return fixedsize; } }
-		//public float IconOffset { get { return iconoffset; } }
+		public RenderMode DisplayMode { get { return displaymode; } } //mxd
+
+		//mxd. Quick access flags
+		public bool FlatAligned { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.FlatAligned); } }
+		public bool WallAligned { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.WallAligned); } }
+		public bool FlipX { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.FlipX); } }
+		public bool FlipY { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.FlipY); } }
+		public bool TrueCentered { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.TrueCentered); } }
+		public bool SemiTransparent { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.SemiTransparent); } }
+		public bool Transparent { get { return CheckFlag(General.Map.FormatInterface.SpriteFlags.Transparent); } }
 
 		#endregion
 
@@ -123,6 +148,8 @@ namespace mxd.DukeBuilder.Map
 			this.flags = new Dictionary<string, bool>(StringComparer.Ordinal);
 			this.owner = -1;
 			this.extra = -1;
+			this.repeatx = 64;
+			this.repeaty = 64;
 			
 			if(map == General.Map.Map) General.Map.UndoRedo.RecAddThing(this);
 		}
@@ -208,7 +235,6 @@ namespace mxd.DukeBuilder.Map
 			t.offsety = offsety;
 			t.status = status;
 			t.anglerad = anglerad;
-			//t.anglebuild = anglebuild;
 
 			t.owner = owner;
 			t.vel = vel;
@@ -220,8 +246,8 @@ namespace mxd.DukeBuilder.Map
 			// Copy internal properties
 			t.size = size;
 			t.color = color;
-			//t.iconoffset = iconoffset;
 			t.fixedsize = fixedsize;
+			t.displaymode = displaymode; //mxd
 
 			base.CopyPropertiesTo(t);
 		}
@@ -230,6 +256,9 @@ namespace mxd.DukeBuilder.Map
 		public void DetermineSector()
 		{
 			//TODO: check if the sprite vertical coords are inside found sector, because overlapping sectors are a thing
+			
+			//mxd. First check if the sprite is still in the same sector
+			if(sector != null && !sector.IsDisposed && sector.Intersect(pos)) return;
 			
 			// Find the nearest linedef on the map
 			Linedef nl = map.NearestLinedef(pos);
@@ -256,6 +285,9 @@ namespace mxd.DukeBuilder.Map
 		// This determines which sector the thing is in and links it
 		public void DetermineSector(VisualBlockMap blockmap)
 		{
+			//mxd. First check if the sprite is still in the same sector
+			if(sector != null && !sector.IsDisposed && sector.Intersect(pos)) return;
+			
 			// Find nearest sectors using the blockmap
 			List<Sector> possiblesectors = blockmap.GetBlock(blockmap.GetBlockCoordinates(pos)).Sectors;
 
@@ -387,8 +419,10 @@ namespace mxd.DukeBuilder.Map
 			// Lookup settings
 			SpriteInfo ti = General.Map.Data.GetSpriteInfo(tileindex);
 			
-			// Apply size
-			size = ti.Radius;
+			//mxd. Calculate size
+			var sprite = General.Map.Data.GetImageData(tileindex);
+			float xratio = RepeatX * ((FlatAligned && TrueCentered) ? 0.2f : 0.25f);
+			size = Math.Max((int)(sprite.Width * xratio) / 2, MINIMUM_SIZE);
 			fixedsize = ti.FixedSize;
 			
 			// Color valid?
@@ -402,9 +436,20 @@ namespace mxd.DukeBuilder.Map
 				// Unknown thing color
 				color = General.Colors.Colors[General.Colors.SpriteColorsOffset];
 			}
-			
-			// Apply icon offset (arrow or dot)
-			//iconoffset = (ti.Arrow ? 0f : 0.25f);
+
+			//mxd. Update display mode
+			if(CheckFlag(General.Map.FormatInterface.SpriteFlags.WallAligned))
+			{
+				displaymode = RenderMode.WALL;
+			}
+			else if(CheckFlag(General.Map.FormatInterface.SpriteFlags.FlatAligned))
+			{
+				displaymode = RenderMode.FLAT;
+			}
+			else
+			{
+				displaymode = RenderMode.BILLBOARD;
+			}
 		}
 		
 		#endregion
@@ -438,6 +483,12 @@ namespace mxd.DukeBuilder.Map
 		{
 			BeforePropsChange();
 			flags.Clear();
+		}
+
+		//mxd
+		private bool CheckFlag(string flagname)
+		{
+			return (!string.IsNullOrEmpty(flagname) && flags.ContainsKey(flagname) && flags[flagname]);
 		}
 		
 		// This snaps the vertex to the grid

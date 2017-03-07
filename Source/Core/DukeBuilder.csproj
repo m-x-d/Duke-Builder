@@ -595,9 +595,11 @@
     <Compile Include="General\SavePurpose.cs" />
     <Compile Include="IO\ClipboardStreamReader.cs" />
     <Compile Include="IO\ClipboardStreamWriter.cs" />
+    <Compile Include="IO\DukeFlags.cs" />
     <Compile Include="IO\DukeMapSetIO.cs" />
     <Compile Include="IO\BuildMapStructures.cs" />
     <Compile Include="IO\ImageReaders\ARTImageReader.cs" />
+    <Compile Include="IO\IFlags.cs" />
     <Compile Include="IO\Tile.cs" />
     <Compile Include="Map\SelectionType.cs" />
     <Compile Include="Map\MapElementCollection.cs" />

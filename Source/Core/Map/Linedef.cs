@@ -312,6 +312,10 @@ namespace mxd.DukeBuilder.Map
 				isinvalid = ((front == null && back == null) || (isdoublesided && front.Sector == back.Sector));
 				isblocking = (!isdoublesided || isinvalid || front.BlockHitscan || front.BlockMove || back.BlockHitscan || back.BlockMove);
 
+				//mxd. Update wall repeats
+				if(front != null) front.UpdateRepeats();
+				if(back != null) back.UpdateRepeats();
+
 				// Updated
 				updateneeded = false;
 			}

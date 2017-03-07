@@ -241,16 +241,16 @@ namespace mxd.DukeBuilder.EditModes
 		private static void SetupSurfaceVertices(Sector s, FlatVertex[] vertices, ImageData img, int xpanning, int ypanning, bool floor)
 		{
 			// Flags
-			bool sloped = s.IsFlagSet(General.Map.FormatInterface.SectorSlopeFlag, floor); // curstat & 2
-			bool relativealignment = s.IsFlagSet(General.Map.FormatInterface.SectorRelativeAlignmentFlag, floor); // curstat & 64
-			bool swapxy = s.IsFlagSet(General.Map.FormatInterface.SectorSwapXYFlag, floor); // curstat & 4
-			bool flipx = s.IsFlagSet(General.Map.FormatInterface.SectorFlipXFlag, floor); // curstat & 16
-			bool flipy = s.IsFlagSet(General.Map.FormatInterface.SectorFlipYFlag, floor); // curstat & 32
+			bool sloped = s.IsFlagSet(General.Map.FormatInterface.SectorFlags.Sloped, floor); // curstat & 2
+			bool relativealignment = s.IsFlagSet(General.Map.FormatInterface.SectorFlags.RelativeAlignment, floor); // curstat & 64
+			bool swapxy = s.IsFlagSet(General.Map.FormatInterface.SectorFlags.SwapXY, floor); // curstat & 4
+			bool flipx = s.IsFlagSet(General.Map.FormatInterface.SectorFlags.FlipX, floor); // curstat & 16
+			bool flipy = s.IsFlagSet(General.Map.FormatInterface.SectorFlags.FlipY, floor); // curstat & 32
 
 			// Common vars
 			int zpos = (floor ? s.FloorHeight : s.CeilingHeight);
 			Vector2D fwstart = (s.FirstWall.IsFront ? s.FirstWall.Line.Start : s.FirstWall.Line.End).Position;
-			float scalecoef = (s.IsFlagSet(General.Map.FormatInterface.SectorTextureExpansionFlag, floor) ? 8.0f : 16.0f);
+			float scalecoef = (s.IsFlagSet(General.Map.FormatInterface.SectorFlags.TextureExpansion, floor) ? 8.0f : 16.0f);
 			float scalecoefx = scalecoef * img.Width;
 			float scalecoefy = scalecoef * img.Height;
 

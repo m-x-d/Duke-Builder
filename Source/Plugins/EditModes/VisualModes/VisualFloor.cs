@@ -104,7 +104,7 @@ namespace mxd.DukeBuilder.EditModes
 		protected override void ChangeShade(bool up)
 		{
 			mode.CreateUndo("Change floor shade", UndoGroup.ShadeChange, Sector.Sector.Index);
-			Sector.Sector.FloorShade = General.Clamp(Sector.Sector.FloorShade + (up ? -1 : 1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
+			Sector.Sector.FloorShade = General.Clamp(Sector.Sector.FloorShade + (up ? 1 : -1), General.Map.FormatInterface.MinShade, General.Map.FormatInterface.MaxShade);
 			mode.SetActionResult("Changed floor shade to " + Sector.Sector.FloorShade + ".");
 		}
 
@@ -112,7 +112,7 @@ namespace mxd.DukeBuilder.EditModes
 		protected override void ChangeAngle(float amount)
 		{
 			mode.CreateUndo("Change floor slope angle", UndoGroup.AngleChange, Sector.Sector.Index);
-			Sector.Sector.SetFlag(General.Map.FormatInterface.SectorSlopeFlag, true, true);
+			Sector.Sector.SetFlag(General.Map.FormatInterface.SectorFlags.Sloped, true, true);
 			Sector.Sector.FloorSlope = General.Clamp(Sector.Sector.FloorSlope - amount, General.Map.FormatInterface.MinSlope, General.Map.FormatInterface.MaxSlope);
 			mode.SetActionResult("Changed floor slope angle to " + Math.Round(Angle2D.RadToDeg(Sector.Sector.FloorSlope) - 90, 1) + ".");
 		}

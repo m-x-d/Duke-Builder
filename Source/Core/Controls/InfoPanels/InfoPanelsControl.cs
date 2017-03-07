@@ -149,7 +149,7 @@ namespace mxd.DukeBuilder.Controls
 			if(vertexinfo.Visible) vertexinfo.Hide();
 			if(lineinfo.Visible) lineinfo.Hide();
 			if(sectorinfo.Visible) sectorinfo.Hide();
-			if(spriteinfo.Visible) sectorinfo.Hide();
+			if(spriteinfo.Visible) spriteinfo.Hide();
 			if(IsExpanded)
 			{
 #if DEBUG
